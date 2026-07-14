@@ -1,15 +1,30 @@
-# Cykeo Argentina — Landing Page
+# Cykeo Argentina — Gabinete Médico RFID
 
-Landing page estática del **Gabinete Médico RFID Cykeo**, distribuido en Argentina.
-Diseño premium inspirado en Apple (referencia principal) con acentos editoriales de amp.
+Landing page del **Gabinete Médico RFID Cykeo**, distribuido en Argentina.
+Diseño premium inspirado en Apple (referencia principal) con acentos editoriales.
+Incluye modo claro/oscuro, animaciones fluidas, formulario de contacto y SEO completo.
 
-## Contenido del paquete
+![Cykeo Argentina](assets/hero-cabinet.png)
+
+## Demo en vivo
+
+Una vez publicado en GitHub Pages, tu página estará disponible en:
 
 ```
-cykeo-argentina/
-├── index.html          # Página completa (HTML + CSS + JS inline, sin dependencias)
-├── logo.svg            # Logo Cykeo Argentina (vectorial, escalable)
-├── favicon.svg         # Favicon derivado del glifo
+https://TU-USUARIO.github.io/cykeo-web/
+```
+
+## Contenido del proyecto
+
+```
+cykeo-web/
+├── index.html          # Página principal (HTML semántico, accesible, SEO)
+├── styles.css          # Estilos responsive mobile-first + dark mode
+├── script.js           # Interactividad (theme toggle, scrollspy, FAQ, form)
+├── logo.svg            # Logo Cykeo Argentina (vectorial)
+├── favicon.svg         # Favicon derivado del logo
+├── .gitignore          # Archivos a ignorar en git
+├── LICENSE             # Licencia MIT
 ├── README.md           # Este archivo
 └── assets/
     ├── hero-cabinet.png    # Imagen principal del gabinete
@@ -19,36 +34,17 @@ cykeo-argentina/
     └── dark-band.png       # Imagen atmosférica para banda oscura
 ```
 
-## Cómo publicar en GitHub Pages
-
-### 1. Crear el repositorio
-1. Andá a [github.com/new](https://github.com/new) y creá un repositorio nuevo (por ejemplo `cykeo-argentina`).
-2. Subí todos los archivos de esta carpeta a la raíz del repositorio.
-
-### 2. Activar GitHub Pages
-1. En el repositorio, andá a **Settings** → **Pages**.
-2. En **Source**, seleccioná **Deploy from a branch**.
-3. En **Branch**, seleccioná `main` (o `master`) y carpeta `/ (root)`.
-4. Guardá. En 1-2 minutos tu página estará online en:
-   ```
-   https://tu-usuario.github.io/cykeo-argentina/
-   ```
-
-### 3. (Opcional) Usar un dominio propio
-En **Settings** → **Pages** → **Custom domain**, escribí tu dominio (ej: `cykeo.com.ar`)
-y configurá un registro CNAME en tu DNS apuntando a `tu-usuario.github.io`.
-
-## Cómo verlo localmente
+## Cómo usarlo localmente
 
 No necesita instalación ni servidor. Simplemente **abrí `index.html`** en tu navegador.
 
 Si querés servirlo con un servidor local (recomendado para probar todo):
 
 ```bash
-# Con Python
+# Con Python (ya instalado en la mayoría de los sistemas)
 python3 -m http.server 8000
 
-# Con Node (http-server)
+# Con Node.js
 npx http-server
 
 # Con PHP
@@ -57,57 +53,169 @@ php -S localhost:8000
 
 Luego abrí `http://localhost:8000` en tu navegador.
 
-## Personalización rápida
+## Cómo publicar en GitHub Pages
+
+### Paso 1: Crear el repositorio
+
+1. Andá a [github.com/new](https://github.com/new)
+2. Repository name: `cykeo-web` (o el que prefieras)
+3. Dejá **desmarcadas** las opciones "Add a README", "Add .gitignore" y "license"
+   (el repo debe estar **vacío** para evitar conflictos)
+4. Click **Create repository**
+
+### Paso 2: Subir los archivos
+
+**Opción A — Interfaz web de GitHub (más simple):**
+
+1. En tu repo vacío, hacé click en **"uploading an existing file"**
+2. Arrastrá todos los archivos de la carpeta `cykeo-web/` (incluyendo subcarpetas)
+3. Escribí un commit message: "Initial commit — landing page Cykeo Argentina"
+4. Click **Commit changes**
+
+**Opción B — Línea de comandos:**
+
+```bash
+# Navegá a la carpeta del proyecto
+cd cykeo-web
+
+# Inicializar git
+git init
+git branch -M main
+
+# Agregar todos los archivos
+git add .
+
+# Primer commit
+git commit -m "Initial commit — landing page Cykeo Argentina"
+
+# Conectar al repo remoto (reemplaza TU-USUARIO)
+git remote add origin https://github.com/TU-USUARIO/cykeo-web.git
+
+# Subir
+git push -u origin main
+```
+
+Te va a pedir tu usuario y un **Personal Access Token** (no tu contraseña).
+Crealo en [github.com/settings/tokens](https://github.com/settings/tokens) con scope `repo`.
+
+### Paso 3: Activar GitHub Pages
+
+1. En tu repo, andá a **Settings** (pestaña superior)
+2. En el menú lateral izquierdo, click en **Pages**
+3. En **Source**, seleccioná **Deploy from a branch**
+4. En **Branch**, seleccioná `main` y carpeta `/ (root)`
+5. Click **Save**
+
+### Paso 4: Esperar y verificar
+
+- GitHub Pages tarda **1-2 minutos** en activarse
+- Verás un mensaje verde con la URL: `https://TU-USUARIO.github.io/cykeo-web/`
+- Si no aparece, esperá un minuto y recargá la página de Settings
+
+### Paso 5 (opcional): Dominio propio
+
+Para usar un dominio personalizado (ej: `cykeo.com.ar`):
+
+1. En **Settings → Pages → Custom domain**, escribí tu dominio
+2. Click **Save**
+3. En tu proveedor de DNS, agregá un registro:
+   - **Tipo:** `CNAME`
+   - **Nombre/Host:** `@` o `www`
+   - **Valor:** `TU-USUARIO.github.io`
+4. Esperá la propagación DNS (puede tardar hasta 48 horas)
+
+## Características
+
+### Diseño
+- **Referencia principal:** Apple (lienzo Frost, un solo Apple Blue, flatness, SF Pro)
+- **Acentos secundarios:** amp (accent rule editorial, dark feature band)
+- **Dos radios:** 8px (cards) + 980px (botones/pills)
+- **Una sola sombra:** solo en la imagen del producto
+- **Modo claro/oscuro:** toggle con persistencia, paleta zinc charcoal (no negro puro)
+
+### Interactividad
+- **Theme toggle** (sun/moon) con persistencia en localStorage
+- **Scroll progress bar** (2px arriba del viewport)
+- **Nav frosted glass** al hacer scroll + **scrollspy** (resalta sección actual)
+- **Scroll reveals** con IntersectionObserver (staggered, respeta reduced-motion)
+- **Magnetic CTA** en el botón primario del hero (desktop only)
+- **Dark band parallax** sutil en la imagen de fondo
+- **FAQ accordion** (todos cerrados por defecto)
+- **Formulario** con validación inline por campo + loading state + success state
+
+### Accesibilidad (WCAG 2.1)
+- Skip to content link
+- Focus-visible states en todos los interactivos
+- aria-expanded, aria-invalid, aria-label en componentes
+- Contraste WCAG AA (texto y acentos)
+- `prefers-reduced-motion` respetado (todas las animaciones colapsan)
+
+### SEO
+- Meta tags completos (title, description, keywords, robots, canonical)
+- Open Graph + Twitter Card
+- Datos estructurados JSON-LD (Schema.org Product)
+- HTML semántico (`<header>`, `<main>`, `<section>`, `<article>`, `<footer>`, `<nav>`)
+- Alt text descriptivo en todas las imágenes
+- `lang="es-AR"`, `theme-color`, `color-scheme`
+
+### Performance
+- CSS y JS en archivos separados (cacheables)
+- `fetchpriority="high"` en hero image + `preload`
+- `loading="lazy"` en imágenes below-the-fold
+- Sin dependencias externas (no CDN, no frameworks)
+- Animaciones solo en `transform` y `opacity` (GPU-aceleradas)
+- `will-change` solo donde se anima
+
+## Personalización
 
 ### Cambiar colores
-Editá las variables CSS en `index.html` (dentro de `<style>`, bloque `:root`):
+
+Editá las variables CSS en `styles.css` (bloque `:root`):
 
 ```css
 :root {
-  --ck-apple-blue: #0071e3;  /* Color primario (CTAs, acentos) */
-  --ck-ink: #1d1d1f;          /* Texto principal */
-  --ck-canvas: #f5f5f7;       /* Fondo de página */
+  --apple-blue: #0071e3;   /* Color primario (CTAs, acentos) */
+  --ink: #1d1d1f;          /* Texto principal */
+  --canvas: #f5f5f7;       /* Fondo de página */
   /* ... etc */
 }
 ```
 
+Para dark mode, editá el bloque `[data-theme="dark"]`.
+
 ### Cambiar texto
-Todo el contenido está en español (Argentina) dentro del `<body>` de `index.html`.
+
+Todo el contenido está en español (Argentina) dentro de `index.html`.
 Buscá el texto que querés cambiar y editalo directamente.
 
 ### Cambiar imágenes
-Reemplazá los archivos en `assets/` manteniendo los mismos nombres, o editá
-las rutas `src="assets/..."` en `index.html`.
 
-### Configurar el formulario
-El formulario actualmente muestra un mensaje de éxito simulado. Para recibir
-los envíos reales, conectalo a un servicio como:
+Reemplazá los archivos en `assets/` manteniendo los mismos nombres,
+o editá las rutas `src="assets/..."` en `index.html`.
+
+### Conectar el formulario
+
+El formulario actualmente muestra un mensaje de éxito simulado.
+Para recibir los envíos reales, conectalo a un servicio:
 
 - **[Formspree](https://formspree.io)** — gratis hasta 50 envíos/mes
 - **[Getform](https://getform.io)** — gratis hasta 1 formulario
 - **[Netlify Forms](https://www.netlify.com/products/forms/)** — gratis con deploy en Netlify
 
-Buscá `initForm()` en el `<script>` y reemplazá la sección de "simulación de envío"
+Buscá la función `initForm()` en `script.js` y reemplazá el `setTimeout`
 con un `fetch()` a tu endpoint.
 
 ## Stack técnico
 
-- **HTML5** semántico y accesible (WCAG AA)
-- **CSS3** con custom properties (variables), Grid, Flexbox, `clamp()` fluido
+- **HTML5** semántico y accesible
+- **CSS3** con custom properties, Grid, Flexbox, `clamp()` fluido
 - **JavaScript vanilla** (sin frameworks ni dependencias)
 - **SVG** para logo y favicon (vectorial, nítido a cualquier resolución)
-- **Responsive** mobile-first (breakpoint en 768px)
-- **`prefers-reduced-motion`** respetado (todas las animaciones colapsan)
-- **SEO**: meta tags completos, Open Graph, Twitter Cards, lang `es-AR`
-
-## Diseño
-
-- **Referencia principal:** Apple (lienzo Frost, un solo Apple Blue, flatness,
-  tipografía SF Pro, modelo full-bleed, solo 2 radios: 8px y 980px)
-- **Acentos secundarios:** amp (accent rule editorial bajo headings, dark feature band)
-- **Tipografía:** SF Pro Display + SF Pro Text vía system stack
-- **Paleta:** monocromo + un solo azul (`#0071e3`)
+- **Responsive** mobile-first (breakpoints en 1024px y 768px)
+- **Sin build step** — se publica directo como está
 
 ## Licencia
+
+MIT — ver [LICENSE](LICENSE) para detalles.
 
 © 2026 Cykeo Argentina. Todos los derechos reservados.
