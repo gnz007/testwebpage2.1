@@ -4,7 +4,8 @@ import { ArrowRight } from "@phosphor-icons/react";
 import Navbar from "./Navbar";
 import Marquee from "./Marquee";
 
-const VIDEO_URL = "/assets/ef98c909-4bd5-4e46-a797-af102557380d.mp4";
+const VIDEO_URL = "/assets/hero-bg.mp4";
+const VIDEO_POSTER = "/assets/hero-cabinet.png";
 
 function useVideoFadeLoop(videoRef: React.RefObject<HTMLVideoElement | null>) {
   useEffect(() => {
@@ -17,6 +18,24 @@ function useVideoFadeLoop(videoRef: React.RefObject<HTMLVideoElement | null>) {
     if (reduce) {
       video.style.opacity = "1";
       return;
+    }
+
+    // Pausa el video cuando sale del viewport (performance + bateria)
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          });
+        },
+        { threshold: 0.05 }
+      );
+      io.observe(video);
+      return () => io.disconnect();
     }
 
     const FADE_DURATION = 500;
@@ -194,14 +213,25 @@ export default function Hero() {
         <video
           ref={videoRef}
           autoPlay
-          loop={false}
+          loop
           muted
           playsInline
+          preload="auto"
+          poster={VIDEO_POSTER}
           className="h-full w-full object-cover"
           style={{ opacity: 0 }}
         >
           <source src={VIDEO_URL} type="video/mp4" />
         </video>
+        {/* Overlay para garantizar legibilidad del contenido sobre el video */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, hsl(220 30% 6% / 0.55) 0%, hsl(220 30% 6% / 0.78) 100%)",
+          }}
+          aria-hidden="true"
+        />
       </div>
 
       {/* Centered blurred overlay shape */}
