@@ -54,8 +54,10 @@
   </script>
 
   <!-- ==================== PRELOAD ==================== -->
-  <link rel="preload" href="assets/hero-bg.mp4" as="video" crossorigin="anonymous" />
   <link rel="preload" href="assets/hero-cabinet.png" as="image" />
+  <!-- Preload del video de fondo del hero (LCP crítico) -->
+  <link rel="preload" href="assets/hero-bg.mp4" as="fetch" crossorigin="anonymous" />
+  <link rel="preload" href="assets/hero-video-poster.jpg" as="image" />
 
   <!-- ==================== ESTILOS ==================== -->
   <link rel="stylesheet" href="styles.css" />
@@ -143,24 +145,37 @@
     <!-- ==================================================================
          HERO — composición asimétrica (texto izq, imagen der dominante)
          ================================================================== -->
-    <section id="top" class="hero">
-      <!-- Video de fondo hero animado -->
+    <section id="top" class="hero hero--video">
+      <!-- Poster estático (fallback reduced-motion + capa base durante carga del video) -->
+      <img
+        src="assets/hero-video-poster.jpg"
+        alt=""
+        aria-hidden="true"
+        class="hero__bg-poster"
+        decoding="async"
+        fetchpriority="high"
+      />
+      <!-- Video de fondo ambiental: ambiente clínico en movimiento.
+           Atributos clave para autoplay cross-browser: muted + playsinline + autoplay.
+           poster como red de seguridad mientras carga. -->
       <video
-        class="hero__video"
+        class="hero__bg-video"
         autoplay
         muted
         loop
         playsinline
         preload="auto"
-        poster="assets/hero-cabinet.png"
+        poster="assets/hero-video-poster.jpg"
+        disablepictureinpicture
+        disableremoteplayback
         aria-hidden="true"
+        tabindex="-1"
       >
         <source src="assets/hero-bg.mp4" type="video/mp4" />
       </video>
-      <!-- Overlay para legibilidad del contenido sobre el video -->
-      <div class="hero__video-overlay" aria-hidden="true"></div>
-
-      <!-- Mesh gradient sutil detrás del hero -->
+      <!-- Scrim direccional: garantiza legibilidad del texto sobre el video -->
+      <div class="hero__scrim" aria-hidden="true"></div>
+      <!-- Mesh gradient sutil encima del video -->
       <div class="hero__mesh" aria-hidden="true"></div>
 
       <div class="hero__inner">
@@ -219,12 +234,6 @@
 
         <!-- Columna derecha: imagen del producto (dominante, ~55%) -->
         <div class="hero__visual reveal" data-delay="2">
-          <!-- Memorable move: ondas RFID animadas sobre la imagen del gabinete -->
-          <div class="hero__rfid-pulse" aria-hidden="true">
-            <span class="hero__pulse-ring"></span>
-            <span class="hero__pulse-ring hero__pulse-ring--2"></span>
-            <span class="hero__pulse-ring hero__pulse-ring--3"></span>
-          </div>
           <img
             src="assets/hero-cabinet.png"
             alt="Gabinete médico RFID Cykeo con pantalla táctil de 21.5 pulgadas y puertas de vidrio"

@@ -40,6 +40,14 @@
   --mesh-strength: 1;
   --dark-band-opacity: 0.35;
 
+  /* Hero video scrim — garantiza legibilidad del texto sobre el video de fondo */
+  --hero-video-blur: 1.5px;
+  --hero-video-saturate: 0.92;
+  --hero-scrim-start: rgba(245, 245, 247, 0.94);
+  --hero-scrim-mid: rgba(245, 245, 247, 0.80);
+  --hero-scrim-end: rgba(245, 245, 247, 0.58);
+  --hero-scrim-top: rgba(245, 245, 247, 0.66);
+
   /* Typography — SF Pro system stack */
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -101,6 +109,14 @@
   --shadow-product: rgba(0, 0, 0, 0.4) 3px 5px 30px 0px;
   --mesh-strength: 0.4;
   --dark-band-opacity: 0.3;
+
+  /* Hero video scrim — dark mode (oscuro para legibilidad de texto claro) */
+  --hero-video-blur: 1.5px;
+  --hero-video-saturate: 0.85;
+  --hero-scrim-start: rgba(26, 26, 29, 0.90);
+  --hero-scrim-mid: rgba(26, 26, 29, 0.78);
+  --hero-scrim-end: rgba(26, 26, 29, 0.62);
+  --hero-scrim-top: rgba(26, 26, 29, 0.72);
 }
 
 /* Smooth theme transition — respects reduced motion */
@@ -399,15 +415,18 @@ p { text-wrap: pretty; }
 
 /* ==========================================================================
    11. HERO — asymmetric split (text left, image right dominant)
+   Fondo: video ambiental MP4 + poster fallback + scrim direccional de legibilidad
    ========================================================================== */
 .hero {
   position: relative;
   padding-top: 60px;
   background: var(--canvas);
   overflow: hidden;
+  isolation: isolate; /* contiene z-index del stack del hero */
 }
-/* Video de fondo hero animado */
-.hero__video {
+
+/* Capa 0a — Poster estático (base durante carga + fallback reduced-motion) */
+.hero__bg-poster {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -415,24 +434,62 @@ p { text-wrap: pretty; }
   object-fit: cover;
   z-index: 0;
   pointer-events: none;
-  will-change: transform;
+  /* Mismo tratamiento visual que el video para coherencia */
+  filter: blur(var(--hero-video-blur)) saturate(var(--hero-video-saturate));
+  transform: scale(1.08); /* evita bordes translúcidos por el blur */
+  user-select: none;
+  -webkit-user-drag: none;
 }
-/* Overlay para garantizar contraste/legibilidad del texto sobre el video */
-.hero__video-overlay {
+
+/* Capa 0b — Video de fondo ambiental */
+.hero__bg-video {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0; /* mismo z-index que poster; orden DOM pone video encima */
   pointer-events: none;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 55%, transparent) 0%, color-mix(in srgb, var(--canvas) 78%, transparent) 100%);
+  filter: blur(var(--hero-video-blur)) saturate(var(--hero-video-saturate));
+  transform: scale(1.08);
+  /* La translición de opacity suaviza la aparición cuando el video carga */
+  opacity: 1;
+  transition: opacity 400ms var(--ease);
+  user-select: none;
 }
-[data-theme="dark"] .hero__video-overlay {
-  background: linear-gradient(180deg, rgba(42, 42, 46, 0.55) 0%, rgba(42, 42, 46, 0.78) 100%);
+.hero__bg-video.is-loading { opacity: 0; }
+
+/* Capa 1 — Scrim direccional de legibilidad
+   Más opaco detrás del texto (izquierda) y arriba (nav),
+   más translúcido a la derecha (donde está la imagen del producto). */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    /* eje horizontal: fuerte a la izq (texto), suave a la der */
+    linear-gradient(
+      90deg,
+      var(--hero-scrim-start) 0%,
+      var(--hero-scrim-mid) 45%,
+      var(--hero-scrim-end) 100%
+    ),
+    /* eje vertical: refuerzo superior para legibilidad del nav */
+    linear-gradient(
+      180deg,
+      var(--hero-scrim-top) 0%,
+      transparent 30%
+    );
+  /* el primer gradiente (horizontal) predomina; el vertical se suma */
+  background-blend-mode: normal;
 }
+
+/* Capa 1b — Mesh gradient sutil encima del scrim (acento de marca) */
 .hero__mesh {
   position: absolute;
   inset: 0;
   z-index: 1;
-  opacity: 0.7;
   pointer-events: none;
   background:
     radial-gradient(ellipse 600px 400px at 30% 30%, rgba(0, 113, 227, calc(0.06 * var(--mesh-strength))), transparent 70%),
@@ -509,34 +566,6 @@ p { text-wrap: pretty; }
   box-shadow: var(--shadow-product);
   position: relative;
   z-index: 1;
-}
-
-/* Memorable move: RFID pulse rings animating over the product image */
-.hero__rfid-pulse {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  pointer-events: none;
-}
-.hero__pulse-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  border: 2px solid var(--apple-blue);
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  animation: rfid-pulse 3s ease-out infinite;
-}
-.hero__pulse-ring--2 { animation-delay: 1s; }
-.hero__pulse-ring--3 { animation-delay: 2s; }
-
-@keyframes rfid-pulse {
-  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
 }
 
 /* ==========================================================================
@@ -1008,6 +1037,25 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
   .hero__actions, .hero__bullets { justify-content: center; }
   .hero__visual { order: -1; }
   .hero__img { max-width: 400px; }
+  /* En móvil el contenido se centra y apila: el scrim pasa a ser uniforme
+     (vertical) para garantizar legibilidad en toda la columna. */
+  .hero__scrim {
+    background:
+      linear-gradient(
+        180deg,
+        var(--hero-scrim-top) 0%,
+        var(--hero-scrim-mid) 35%,
+        var(--hero-scrim-mid) 65%,
+        var(--hero-scrim-end) 100%
+      );
+  }
+  /* En móvil el video se recorta para enfocar la parte IZQUIERDA del frame,
+     donde están las personas y estanterías (composición más interesante
+     y coherente con el texto centrado). Desktop se mantiene centrado. */
+  .hero__bg-video,
+  .hero__bg-poster {
+    object-position: left center;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1033,9 +1081,11 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .js .bento__tile { transition: none; }
-  .hero__pulse-ring { animation: none; display: none; }
-  .hero__video { display: none; }
   .scroll-progress { transition: none; }
+  /* Nota: el video de fondo ambiental (muted, lento, blur) se SIGUE
+     reproduciendo bajo prefers-reduced-motion porque es una textura
+     atmosférica sutil, no una animación agresiva. Solo se desactivan
+     los pulsos RFID y las transiciones de UI (arriba). */
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
@@ -1048,8 +1098,10 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
    23. PRINT — clean print styles
    ========================================================================== */
 @media print {
-  .nav, .scroll-progress, .skip-link, .theme-toggle, .hero__rfid-pulse, .hero__video, .hero__video-overlay, .dark-band__img { display: none; }
+  .nav, .scroll-progress, .skip-link, .theme-toggle, .dark-band__img,
+  .hero__bg-video, .hero__bg-poster, .hero__scrim, .hero__mesh { display: none; }
   body { background: #fff; color: #000; }
+  .hero { background: #fff; }
   .dark-band { background: #fff; color: #000; }
   .dark-band__title, .dark-band__desc { color: #000; }
 }

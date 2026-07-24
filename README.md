@@ -20,18 +20,20 @@ https://TU-USUARIO.github.io/cykeo-web/
 cykeo-web/
 ├── index.html          # Página principal (HTML semántico, accesible, SEO)
 ├── styles.css          # Estilos responsive mobile-first + dark mode
-├── script.js           # Interactividad (theme toggle, scrollspy, FAQ, form)
+├── script.js           # Interactividad (theme toggle, scrollspy, FAQ, form, video hero)
 ├── logo.svg            # Logo Cykeo Argentina (vectorial)
 ├── favicon.svg         # Favicon derivado del logo
 ├── .gitignore          # Archivos a ignorar en git
 ├── LICENSE             # Licencia MIT
 ├── README.md           # Este archivo
 └── assets/
-    ├── hero-cabinet.png    # Imagen principal del gabinete
-    ├── scene-or.png        # Escena de quirófano
-    ├── scene-pharmacy.png  # Escena de farmacia hospitalaria
-    ├── detail-touch.png    # Close-up de pantalla táctil
-    └── dark-band.png       # Imagen atmosférica para banda oscura
+    ├── hero-cabinet.png        # Imagen principal del gabinete (columna derecha del hero)
+    ├── hero-bg.mp4             # Video de fondo ambiental del hero (H.264, 1.2MB, faststart)
+    ├── hero-video-poster.jpg   # Poster estático del video (fallback reduced-motion + carga)
+    ├── scene-or.png            # Escena de quirófano
+    ├── scene-pharmacy.png      # Escena de farmacia hospitalaria
+    ├── detail-touch.png        # Close-up de pantalla táctil
+    └── dark-band.png           # Imagen atmosférica para banda oscura
 ```
 
 ## Cómo usarlo localmente
@@ -165,6 +167,23 @@ Para usar un dominio personalizado (ej: `cykeo.com.ar`):
 - Sin dependencias externas (no CDN, no frameworks)
 - Animaciones solo en `transform` y `opacity` (GPU-aceleradas)
 - `will-change` solo donde se anima
+
+### Video de fondo del hero
+El header principal usa un video MP4 ambiental como fondo, con estas optimizaciones:
+
+- **Video optimizado para web**: H.264, perfil high@4.0, `+faststart` (streaming progresivo), sin pista de audio (1.2 MB).
+- **Poster estático** (`hero-video-poster.jpg`): se muestra durante la carga y como fallback cuando el usuario tiene `prefers-reduced-motion: reduce`.
+- **Atributos del `<video>`**: `autoplay muted loop playsinline preload="auto"` (requisitos para autoplay en iOS/Safari/Chrome).
+- **Scrim direccional de legibilidad**: capa con gradiente que protege el texto (más opaca a la izquierda donde está el texto, más translúcida a la derecha donde está la imagen del producto). Variantes distintas para light/dark mode.
+- **Blur + saturación**: el video se aplica con `filter: blur(1.5px) saturate(0.92)` para que funcione como textura atmosférica y no compita con el contenido.
+- **Performance**:
+  - `IntersectionObserver` pausa el video cuando el hero sale del viewport.
+  - `visibilitychange` pausa el video al cambiar de pestaña.
+  - `preload` del video y el poster en el `<head>`.
+- **Accesibilidad**:
+  - `aria-hidden="true"` y `tabindex="-1"` en el video (decorativo).
+  - Respeta `prefers-reduced-motion` (oculta el video y muestra solo el poster).
+  - El texto mantiene contraste WCAG AA/AAA en ambos modos.
 
 ## Personalización
 
