@@ -40,3 +40,9 @@ yarn-error.log*
 # Test coverage
 coverage/
 .nyc_output/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
