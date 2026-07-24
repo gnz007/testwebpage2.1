@@ -1,59 +1,667 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es-AR">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Cykeo Argentina — Gabinete Médico RFID | Gestión Quirúrgica Inteligente</title>
-    <meta name="description" content="Gabinete médico RFID Cykeo con pantalla táctil 21.5″, doble cámara y precisión del 99%. Distribuido en Argentina para quirófanos, farmacias y laboratorios. Cumple ANMAT y FDA 21 CFR Part 11." />
-    <meta name="keywords" content="gabinete médico RFID, RFID quirúrgico Argentina, gestión de inventario hospitalario, gabinete inteligente ANMAT, trazabilidad médica Buenos Aires, Cykeo Argentina" />
-    <meta name="author" content="Cykeo Argentina" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://cykeo.com.ar/" />
+  <!-- ==================== SEO PRIMARIO ==================== -->
+  <title>Cykeo Argentina — Gabinete Médico RFID | Gestión Quirúrgica Inteligente</title>
+  <meta name="description" content="Gabinete médico RFID Cykeo con pantalla táctil 21.5″, doble cámara y precisión del 99%. Distribuido en Argentina para quirófanos, farmacias y laboratorios. Cumple ANMAT y FDA 21 CFR Part 11." />
+  <meta name="keywords" content="gabinete médico RFID, RFID quirúrgico Argentina, gestión de inventario hospitalario, gabinete inteligente ANMAT, trazabilidad médica Buenos Aires, Cykeo Argentina" />
+  <meta name="author" content="Cykeo Argentina" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://cykeo.com.ar/" />
 
-    <meta property="og:title" content="Cykeo Argentina — Gabinete Médico RFID" />
-    <meta property="og:description" content="Gestión quirúrgica inteligente con RFID. Distribuido en Argentina para hospitales, farmacias y laboratorios." />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="es_AR" />
-    <meta property="og:url" content="https://cykeo.com.ar/" />
-    <meta property="og:image" content="/assets/hero-cabinet.png" />
-    <meta property="og:image:alt" content="Gabinete médico RFID Cykeo" />
-    <meta property="og:site_name" content="Cykeo Argentina" />
+  <!-- ==================== OPEN GRAPH ==================== -->
+  <meta property="og:title" content="Cykeo Argentina — Gabinete Médico RFID" />
+  <meta property="og:description" content="Gestión quirúrgica inteligente con RFID. Distribuido en Argentina para hospitales, farmacias y laboratorios." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_AR" />
+  <meta property="og:url" content="https://cykeo.com.ar/" />
+  <meta property="og:image" content="assets/hero-cabinet.png" />
+  <meta property="og:image:alt" content="Gabinete médico RFID Cykeo" />
+  <meta property="og:site_name" content="Cykeo Argentina" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Cykeo Argentina — Gabinete Médico RFID" />
-    <meta name="twitter:description" content="Gestión quirúrgica inteligente con RFID. Distribuido en Argentina." />
-    <meta name="twitter:image" content="/assets/hero-cabinet.png" />
+  <!-- ==================== TWITTER CARD ==================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Cykeo Argentina — Gabinete Médico RFID" />
+  <meta name="twitter:description" content="Gestión quirúrgica inteligente con RFID. Distribuido en Argentina." />
+  <meta name="twitter:image" content="assets/hero-cabinet.png" />
 
-    <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
-    <meta name="color-scheme" content="light" />
+  <!-- ==================== ICONOS ==================== -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://api.fontshare.com" />
-    <link rel="preload" href="/assets/hero-cabinet.png" as="image" />
+  <!-- ==================== TEMA ==================== -->
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2a2e" media="(prefers-color-scheme: dark)" />
+  <meta name="color-scheme" content="light dark" />
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Gabinete Médico RFID Cykeo",
-      "description": "Gabinete médico RFID con pantalla táctil 21.5″, doble cámara y precisión del 99%. Distribuido en Argentina.",
-      "brand": { "@type": "Brand", "name": "Cykeo Argentina" },
-      "category": "Medical Equipment",
-      "offers": {
-        "@type": "Offer",
-        "availability": "https://schema.org/InStock",
-        "priceCurrency": "ARS",
-        "seller": { "@type": "Organization", "name": "Cykeo Argentina" }
+  <!-- ==================== ANTI-FOUC ==================== -->
+  <!-- Script síncrono: lee el tema guardado ANTES de que el CSS se renderice.
+       Por defecto arranca SIEMPRE en modo claro. El modo oscuro solo se activa
+       si el usuario lo elige explícitamente y queda persistido en localStorage. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ck-theme');
+        if (t !== 'dark' && t !== 'light') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
       }
+    })();
+  </script>
+
+  <!-- ==================== PRELOAD ==================== -->
+  <link rel="preload" href="assets/hero-bg.mp4" as="video" crossorigin="anonymous" />
+  <link rel="preload" href="assets/hero-cabinet.png" as="image" />
+
+  <!-- ==================== ESTILOS ==================== -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- ==================== DATOS ESTRUCTURADOS ==================== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Gabinete Médico RFID Cykeo",
+    "description": "Gabinete médico RFID con pantalla táctil 21.5″, doble cámara y precisión del 99%. Distribuido en Argentina.",
+    "brand": { "@type": "Brand", "name": "Cykeo Argentina" },
+    "category": "Medical Equipment",
+    "offers": {
+      "@type": "Offer",
+      "availability": "https://schema.org/InStock",
+      "priceCurrency": "ARS",
+      "seller": { "@type": "Organization", "name": "Cykeo Argentina" }
     }
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  }
+  </script>
+</head>
+
+<body>
+  <!-- ====================================================================
+       BARRA DE PROGRESO DE SCROLL
+       Indicador fino (2px) arriba del viewport que se llena con Apple Blue.
+       ==================================================================== -->
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <!-- ====================================================================
+       SKIP TO CONTENT — accesibilidad keyboard WCAG 2.1
+       Link invisible hasta que se navega con Tab.
+       ==================================================================== -->
+  <a href="#main" class="skip-link">Saltar al contenido</a>
+
+  <!-- ====================================================================
+       NAVEGACIÓN PRINCIPAL
+       Sticky, frosted glass al hacer scroll, con scrollspy.
+       ==================================================================== -->
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <!-- Logo SVG -->
+      <a href="#top" class="nav__logo" aria-label="Cykeo Argentina — Inicio">
+        <img src="logo.svg" alt="Cykeo Argentina" width="112" height="28" />
+      </a>
+
+      <!-- Navegación central — hidden on mobile -->
+      <nav class="nav__links" aria-label="Navegación principal">
+        <a href="#producto" class="nav__link">Producto</a>
+        <a href="#caracteristicas" class="nav__link">Características</a>
+        <a href="#caso" class="nav__link">Caso real</a>
+        <a href="#especificaciones" class="nav__link">Especificaciones</a>
+        <a href="#contacto" class="nav__link">Contacto</a>
+      </nav>
+
+      <!-- Cluster derecho: theme toggle + CTA -->
+      <div class="nav__actions">
+        <!-- Toggle de modo claro/oscuro -->
+        <button
+          type="button"
+          class="theme-toggle"
+          id="theme-toggle"
+          aria-label="Activar modo oscuro"
+          title="Modo oscuro"
+        >
+          <!-- Moon icon — visible en light mode -->
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <!-- Sun icon — visible en dark mode -->
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+        </button>
+
+        <!-- CTA principal -->
+        <a href="#contacto" class="btn btn--primary nav__cta">Solicitar demo</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ==================================================================
+         HERO — composición asimétrica (texto izq, imagen der dominante)
+         ================================================================== -->
+    <section id="top" class="hero">
+      <!-- Video de fondo hero animado -->
+      <video
+        class="hero__video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster="assets/hero-cabinet.png"
+        aria-hidden="true"
+      >
+        <source src="assets/hero-bg.mp4" type="video/mp4" />
+      </video>
+      <!-- Overlay para legibilidad del contenido sobre el video -->
+      <div class="hero__video-overlay" aria-hidden="true"></div>
+
+      <!-- Mesh gradient sutil detrás del hero -->
+      <div class="hero__mesh" aria-hidden="true"></div>
+
+      <div class="hero__inner">
+        <!-- Columna izquierda: contenido -->
+        <div class="hero__content">
+          <!-- Eyebrow — distribución Argentina -->
+          <p class="hero__eyebrow reveal" data-delay="0">
+            Distribuido en Argentina · Sede en Buenos Aires
+          </p>
+
+          <!-- H1 — product name -->
+          <h1 class="hero__title display reveal" data-delay="1">
+            Gabinete Médico RFID
+          </h1>
+
+          <!-- Tagline -->
+          <p class="hero__tagline reveal" data-delay="2">
+            Almacenamiento inteligente para activos médicos críticos.
+          </p>
+
+          <!-- CTAs — button-in-button pattern en el primario -->
+          <div class="hero__actions reveal" data-delay="3">
+            <a href="#contacto" class="btn btn--primary" id="magnetic-cta">
+              Solicitar demo
+              <span class="btn__icon-wrap">
+                <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </a>
+            <a href="#especificaciones" class="btn btn--outline">Ver especificaciones</a>
+          </div>
+
+          <!-- Bullets de compliance -->
+          <ul class="hero__bullets reveal" data-delay="4">
+            <li>
+              <svg class="hero__bullet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12l5 5L20 7" />
+              </svg>
+              Compliance ANMAT y FDA 21 CFR Part 11
+            </li>
+            <li>
+              <svg class="hero__bullet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12l5 5L20 7" />
+              </svg>
+              Pantalla táctil HD 21.5″ (Windows / Android)
+            </li>
+            <li>
+              <svg class="hero__bullet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12l5 5L20 7" />
+              </svg>
+              Acceso por RFID, huella o reconocimiento facial
+            </li>
+          </ul>
+        </div>
+
+        <!-- Columna derecha: imagen del producto (dominante, ~55%) -->
+        <div class="hero__visual reveal" data-delay="2">
+          <!-- Memorable move: ondas RFID animadas sobre la imagen del gabinete -->
+          <div class="hero__rfid-pulse" aria-hidden="true">
+            <span class="hero__pulse-ring"></span>
+            <span class="hero__pulse-ring hero__pulse-ring--2"></span>
+            <span class="hero__pulse-ring hero__pulse-ring--3"></span>
+          </div>
+          <img
+            src="assets/hero-cabinet.png"
+            alt="Gabinete médico RFID Cykeo con pantalla táctil de 21.5 pulgadas y puertas de vidrio"
+            class="hero__img"
+            width="1024"
+            height="1024"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESCRIPCIÓN — eyebrow + heading + accent rule + body
+         ================================================================== -->
+    <section id="producto" class="section section--text">
+      <div class="container container--narrow center">
+        <p class="eyebrow reveal">Inteligencia estéril. Cero compromisos.</p>
+        <h2 class="heading reveal" data-delay="1">Cada ítem trazado, cada escaneo confiable.</h2>
+        <hr class="accent-rule reveal" data-delay="2" />
+        <p class="lead reveal" data-delay="3">
+          El gabinete Cykeo mantiene los consumibles quirúrgicos bajo llave, registrados y
+          fáciles de rastrear. Doble cámara más RFID maneja 400 ítems con precisión del 99%,
+          reduciendo horas de personal y errores. Funciona en salas estériles, compatible con
+          Windows y Android, y cumple los requisitos de auditoría ANMAT y FDA.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         CASO REAL — reemplaza el stats grid genérico por narrativa
+         con un solo número hero + caso de estudio concreto.
+         ================================================================== -->
+    <section id="caso" class="section section--elevated">
+      <div class="container">
+        <div class="case-study">
+          <!-- Número hero — uno solo, con contexto narrativo -->
+          <div class="case-study__stat reveal">
+            <div class="case-study__number">
+              40<span class="case-study__suffix">%</span>
+            </div>
+            <p class="case-study__stat-label">
+              menos tiempo de preparación de quirófano
+            </p>
+          </div>
+
+          <!-- Narrativa del caso -->
+          <div class="case-study__story reveal" data-delay="1">
+            <p class="case-study__quote">
+              "El Hospital Italiano de Buenos Aires redujo 40% el tiempo de preparación
+              de quirófano usando este sistema. Todos los reportes de uso de implantes
+              son automáticamente compliant con ANMAT y HIPAA."
+            </p>
+            <p class="case-study__attribution">
+              — Caso real documentado en hospitales de Argentina
+            </p>
+          </div>
+        </div>
+
+        <!-- Métricas secundarias en línea (no grid de 4 cards) -->
+        <ul class="case-study__metrics reveal" data-delay="2">
+          <li><strong>99%</strong> precisión de inventario</li>
+          <li><strong>5s</strong> escaneo completo</li>
+          <li><strong>400</strong> ítems en simultáneo</li>
+          <li><strong>IP54</strong> certificación ambiental</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         ESCENARIOS — chips horizontales
+         ================================================================== -->
+    <section id="aplicaciones" class="section section--text">
+      <div class="container">
+        <div class="chips reveal">
+          <span class="chip" data-delay="1">Centro quirúrgico</span>
+          <span class="chip" data-delay="2">Instrumental de quirófano</span>
+          <span class="chip" data-delay="3">Sala limpia farmacéutica</span>
+          <span class="chip" data-delay="4">Anestesia en farmacia</span>
+          <span class="chip" data-delay="5">Gestión médica</span>
+          <span class="chip" data-delay="6">Laboratorio biológico</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         CARACTERÍSTICAS — bento reducido a 5 tiles con composición variada
+         (no 9 cards idénticas — 2 con imagen grande + 3 de texto)
+         ================================================================== -->
+    <section id="caracteristicas" class="section">
+      <div class="container">
+        <div class="section-head center reveal">
+          <h2 class="heading">Características clave</h2>
+          <hr class="accent-rule" />
+        </div>
+
+        <div class="bento">
+          <!-- Tile grande 1 — con imagen, col-span 2 -->
+          <article class="bento__tile bento__tile--large reveal">
+            <img src="assets/scene-or.png" alt="Quirófano con gabinete RFID Cykeo en uso" loading="lazy" />
+            <div class="bento__overlay">
+              <h3 class="bento__title bento__title--light">Integración con flujo quirúrgico</h3>
+              <p class="bento__desc bento__desc--light">
+                Interfaces HL7 / FHIR sincronizan con Epic y Cerner para preparar kits por caso
+                usando datos del EMR en tiempo real.
+              </p>
+            </div>
+          </article>
+
+          <!-- Tile texto 1 — escaneo RFID -->
+          <article class="bento__tile reveal" data-delay="1">
+            <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+              <path d="M9 9h6v6H9z" />
+              <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
+            </svg>
+            <h3 class="bento__title">Escaneo de alta densidad</h3>
+            <p class="bento__desc">
+              Impinj R2000 identifica 800+ ítems por estante, 1.000 tags/min.
+            </p>
+          </article>
+
+          <!-- Tile texto 2 — autenticación -->
+          <article class="bento__tile reveal" data-delay="2">
+            <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+            <h3 class="bento__title">Doble autenticación</h3>
+            <p class="bento__desc">
+              Vena del dedo + RFID con auditoría, cumple FDA 21 CFR Part 11.
+            </p>
+          </article>
+
+          <!-- Tile grande 2 — con imagen, col-span 2 -->
+          <article class="bento__tile bento__tile--large reveal" data-delay="3">
+            <img src="assets/scene-pharmacy.png" alt="Farmacia hospitalaria con gabinete RFID" loading="lazy" />
+            <div class="bento__overlay">
+              <h3 class="bento__title bento__title--light">Trazabilidad farmacéutica completa</h3>
+              <p class="bento__desc bento__desc--light">
+                Registro blockchain con timestamps cifrados SHA-256 sobre Hyperledger.
+                Cada retiro queda documentado para auditorías ANMAT.
+              </p>
+            </div>
+          </article>
+
+          <!-- Tile texto 3 — construcción -->
+          <article class="bento__tile reveal" data-delay="4">
+            <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
+              <path d="M12 22V12M12 12L3 7M12 12l9-5" />
+            </svg>
+            <h3 class="bento__title">Construcción ruggedizada</h3>
+            <p class="bento__desc">
+              Acero al carbono 1.2mm, 200kg de carga, IP54 para lavado de quirófano.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         ESPECIFICACIONES — cards con valor grande, no tabla larga
+         ================================================================== -->
+    <section id="especificaciones" class="section section--elevated">
+      <div class="container">
+        <div class="section-head center reveal">
+          <h2 class="heading">Especificaciones técnicas</h2>
+          <hr class="accent-rule" />
+          <p class="section-head__desc">
+            Ingeniería de precisión para entornos hospitalarios exigentes.
+          </p>
+        </div>
+
+        <div class="specs">
+          <article class="spec-card reveal" data-delay="1">
+            <div class="spec-card__value">21.5″</div>
+            <div class="spec-card__label">Pantalla táctil capacitiva</div>
+            <p class="spec-card__body">HD multitouch con Windows o Android. Control total del inventario a la vista, escaneos completos en segundos.</p>
+          </article>
+          <article class="spec-card reveal" data-delay="2">
+            <div class="spec-card__value">400</div>
+            <div class="spec-card__label">Capacidad de ítems</div>
+            <p class="spec-card__body">Hasta 400 piezas trazadas en simultáneo con precisión superior al 99%, incluso a través de puertas de vidrio.</p>
+          </article>
+          <article class="spec-card reveal" data-delay="3">
+            <div class="spec-card__value">≤5s</div>
+            <div class="spec-card__label">Velocidad de escaneo</div>
+            <p class="spec-card__body">Escaneo completo del gabinete en 5 segundos, 1.000 tags por minuto. Rotación de quirófano sin demoras.</p>
+          </article>
+          <article class="spec-card reveal" data-delay="1">
+            <div class="spec-card__value">IP54</div>
+            <div class="spec-card__label">Certificación ambiental</div>
+            <p class="spec-card__body">Resistente a polvo y agua. Soporta lavado de descontaminación estándar en quirófanos argentinos.</p>
+          </article>
+          <article class="spec-card reveal" data-delay="2">
+            <div class="spec-card__value">200kg</div>
+            <div class="spec-card__label">Carga máxima</div>
+            <p class="spec-card__body">Chasis de acero al carbono de 1.2mm. Construido para uso intensivo en ambientes hospitalarios exigentes.</p>
+          </article>
+          <article class="spec-card reveal" data-delay="3">
+            <div class="spec-card__value">840-960</div>
+            <div class="spec-card__label">Rango de frecuencia (MHz)</div>
+            <p class="spec-card__body">Cobertura UHF global. Compatible con estándares EPC C1G2 e ISO 18000-6C para tags de cualquier proveedor.</p>
+          </article>
+        </div>
+
+        <p class="footnote reveal">
+          El rendimiento del producto se basa en pruebas en ambiente controlado. Según el entorno, los resultados pueden variar.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DARK BAND — full-bleed charcoal con parallax
+         ================================================================== -->
+    <section class="dark-band">
+      <img src="assets/dark-band.png" alt="" class="dark-band__img" aria-hidden="true" loading="lazy" />
+      <div class="dark-band__content container container--narrow center">
+        <h2 class="dark-band__title display reveal">Cada escaneo, trazado.</h2>
+        <hr class="accent-rule accent-rule--signal reveal" data-delay="1" />
+        <p class="dark-band__desc reveal" data-delay="2">
+          Conectividad WiFi y 4G mantiene alertas en vivo. Siempre sabés qué entra y qué sale,
+          sin demoras, sin ítems perdidos. Control directo, sin complicaciones.
+        </p>
+        <div class="dark-band__actions reveal" data-delay="3">
+          <a href="#contacto" class="btn btn--light">Solicitar demo</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         FAQ — acordeón, todos arrancan cerrados
+         ================================================================== -->
+    <section class="section">
+      <div class="container container--narrow">
+        <div class="section-head center reveal">
+          <h2 class="heading">Preguntas frecuentes</h2>
+          <hr class="accent-rule" />
+        </div>
+
+        <div class="faq reveal">
+          <div class="faq__item" data-open="false">
+            <button type="button" class="faq__trigger" aria-expanded="false">
+              <span>¿Cómo simplifica la pantalla táctil el flujo de trabajo quirúrgico?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            <div class="faq__panel">
+              <div class="faq__panel-inner">
+                La pantalla de 21.5″ funciona como centro de control. Escaneos completos de inventario en segundos. Packs vencidos resaltan en rojo en pantalla. Se pueden asignar ítems a cirujanos específicos arrastrándolos con sus credenciales RFID. El Hospital Italiano de Buenos Aires redujo 40% el tiempo de preparación de quirófano usando este sistema, y todos los reportes de uso de implantes son automáticamente compliant con ANMAT y HIPAA.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq__item" data-open="false">
+            <button type="button" class="faq__trigger" aria-expanded="false">
+              <span>¿Puede rastrear implantes metálicos a través de las puertas de vidrio?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            <div class="faq__panel">
+              <div class="faq__panel-inner">
+                Sí. Las antenas están calibradas para leer a través de 12mm de vidrio, combinadas con tags RFID anti-metal específicos para implantes de titanio. El boost de señal se activa cuando las puertas detectan proximidad. Hospitales reportan 99%+ de precisión incluso escaneando cientos de implantes sin abrir el gabinete.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq__item" data-open="false">
+            <button type="button" class="faq__trigger" aria-expanded="false">
+              <span>¿Cómo funciona el compliance con ANMAT y FDA 21 CFR Part 11?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            <div class="faq__panel">
+              <div class="faq__panel-inner">
+                Todo está en capas. Los escaneos biométricos mantienen fuera al personal no autorizado, cada acción queda registrada en memoria cifrada, y la información del paciente se enmascara automáticamente en reportes exportados. Una clínica en Buenos Aires pasó una auditoría ANMAT sin observaciones usando este sistema, con cero violaciones de trazabilidad.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         CTA BAND
+         ================================================================== -->
+    <section class="section section--elevated">
+      <div class="container container--narrow center">
+        <h2 class="heading reveal">¿Necesitás una solución a medida?</h2>
+        <p class="lead reveal" data-delay="1">
+          Enviá tus requisitos y datos de contacto válidos. Nuestros ingenieros entregan una
+          solución personalizada en 24 horas.
+        </p>
+        <div class="reveal" data-delay="2">
+          <a href="#contacto" class="btn btn--primary">
+            Solicitar demo
+            <span class="btn__icon-wrap">
+              <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         FORMULARIO DE CONTACTO
+         ================================================================== -->
+    <section id="contacto" class="section">
+      <div class="container container--narrow">
+        <div class="section-head center reveal">
+          <h2 class="heading">Solicitar demo</h2>
+          <hr class="accent-rule" />
+          <p class="section-head__desc">
+            Coordinamos una demostración presencial u online en Buenos Aires y todo el país.
+          </p>
+        </div>
+
+        <!-- Estado de éxito (hidden por defecto) -->
+        <div class="form-success" id="form-success" hidden>
+          <svg class="form-success__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12l5 5L20 7" />
+          </svg>
+          <h3 class="form-success__title">Solicitud enviada</h3>
+          <p class="form-success__body">
+            Gracias. Nuestro equipo de Argentina se contactará a la brevedad para coordinar la demostración.
+          </p>
+        </div>
+
+        <!-- Formulario -->
+        <form id="contact-form" class="reveal" novalidate>
+          <div class="form-grid">
+            <div class="form-field" data-field="nombre">
+              <label class="form-field__label" for="nombre">Nombre *</label>
+              <input class="form-field__input" type="text" id="nombre" name="nombre" required placeholder="Su nombre" />
+              <span class="form-field__error" role="alert"></span>
+            </div>
+            <div class="form-field" data-field="email">
+              <label class="form-field__label" for="email">Email *</label>
+              <input class="form-field__input" type="email" id="email" name="email" required placeholder="nombre@institucion.com.ar" />
+              <span class="form-field__error" role="alert"></span>
+            </div>
+            <div class="form-field" data-field="tel">
+              <label class="form-field__label" for="tel">Teléfono *</label>
+              <input class="form-field__input" type="tel" id="tel" name="tel" required placeholder="+54 11 1234-5678" />
+              <span class="form-field__error" role="alert"></span>
+            </div>
+            <div class="form-field" data-field="institucion">
+              <label class="form-field__label" for="institucion">Institución *</label>
+              <input class="form-field__input" type="text" id="institucion" name="institucion" required placeholder="Hospital / clínica / laboratorio" />
+              <span class="form-field__error" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-field form-field--full">
+            <label class="form-field__label" for="mensaje">Mensaje</label>
+            <textarea class="form-field__input form-field__textarea" id="mensaje" name="mensaje" rows="4" placeholder="Contanos sobre su necesidad: cantidad de gabinetes, tipo de insumos a rastrear, integración con sistemas existentes..."></textarea>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="btn btn--primary btn--large" id="form-submit-btn">
+              <span class="btn__text">Enviar solicitud</span>
+              <span class="btn__icon-wrap">
+                <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====================================================================
+       FOOTER
+       ==================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <!-- Marca -->
+        <div class="footer__col footer__col--brand">
+          <div class="footer__brand">Cykeo Argentina</div>
+          <p class="footer__brand-desc">
+            Distribución oficial de gabinetes médicos RFID para hospitales, farmacias y laboratorios en todo el país.
+          </p>
+        </div>
+
+        <!-- Producto -->
+        <div class="footer__col">
+          <h3 class="footer__heading">Producto</h3>
+          <a href="#producto" class="footer__link">Visión general</a>
+          <a href="#caracteristicas" class="footer__link">Características</a>
+          <a href="#especificaciones" class="footer__link">Especificaciones</a>
+          <a href="#aplicaciones" class="footer__link">Aplicaciones</a>
+        </div>
+
+        <!-- Soluciones -->
+        <div class="footer__col">
+          <h3 class="footer__heading">Soluciones</h3>
+          <a href="#aplicaciones" class="footer__link">Centro quirúrgico</a>
+          <a href="#aplicaciones" class="footer__link">Farmacia hospitalaria</a>
+          <a href="#aplicaciones" class="footer__link">Laboratorio</a>
+          <a href="#aplicaciones" class="footer__link">Sustancias controladas</a>
+        </div>
+
+        <!-- Contacto -->
+        <div class="footer__col">
+          <h3 class="footer__heading">Contacto</h3>
+          <a href="tel:+541143215000" class="footer__link">+54 11 4321-5000</a>
+          <a href="mailto:ventas@cykeo.com.ar" class="footer__link">ventas@cykeo.com.ar</a>
+          <span class="footer__link footer__link--static">Av. del Libertador 1200</span>
+          <span class="footer__link footer__link--static">C1426, CABA, Argentina</span>
+        </div>
+      </div>
+
+      <hr class="footer__hr" />
+
+      <div class="footer__bottom">
+        <p>© 2026 Cykeo Argentina. Todos los derechos reservados.</p>
+        <nav class="footer__legal" aria-label="Legal">
+          <a href="#" class="footer__link">Privacidad</a>
+          <a href="#" class="footer__link">Términos</a>
+          <a href="#" class="footer__link">Mapa del sitio</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ====================================================================
+       JAVASCRIPT
+       ==================================================================== -->
+  <script src="script.js" defer></script>
+</body>
 </html>
