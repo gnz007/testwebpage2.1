@@ -37,44 +37,20 @@ const BENTO = [
 
 const ICONS: Record<string, React.ReactNode> = {
   scan: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-8 w-8 text-brand-blue"
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-1 h-8 w-8 text-apple-blue">
       <rect x="6" y="6" width="12" height="12" rx="2" />
       <path d="M9 9h6v6H9z" />
       <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
     </svg>
   ),
   auth: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-8 w-8 text-brand-blue"
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-1 h-8 w-8 text-apple-blue">
       <path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z" />
       <path d="M9 12l2 2 4-4" />
     </svg>
   ),
   build: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-8 w-8 text-brand-blue"
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-1 h-8 w-8 text-apple-blue">
       <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
       <path d="M12 22V12M12 12L3 7M12 12l9-5" />
     </svg>
@@ -83,13 +59,13 @@ const ICONS: Record<string, React.ReactNode> = {
 
 export default function Features() {
   return (
-    <section id="caracteristicas" className="px-6 py-[14vh] md:px-10">
-      <div className="mx-auto max-w-7xl">
+    <section id="caracteristicas" className="px-[22px] py-[clamp(80px,12vh,140px)]">
+      <div className="mx-auto max-w-[1440px]">
         <Reveal className="mb-16 text-center">
-          <h2 className="font-display text-[clamp(32px,5vw,48px)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground">
+          <h2 className="font-display font-semibold text-ink" style={{ fontSize: "clamp(32px,5vw,48px)", lineHeight: 1.14, letterSpacing: "0.44px", textWrap: "balance" }}>
             Características clave
           </h2>
-          <hr className="mx-auto mt-6 h-[2px] w-[60px] border-0 bg-brand-blue" />
+          <span className="mx-auto mt-6 block h-[2px] w-[60px] bg-apple-blue" />
         </Reveal>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -98,22 +74,20 @@ export default function Features() {
               <Reveal
                 key={t.title}
                 delay={i * 0.08}
-                className="group relative col-span-1 flex min-h-[340px] flex-col justify-end overflow-hidden rounded-[8px] border border-white/10 md:col-span-2"
+                className="group relative col-span-1 flex min-h-[340px] flex-col justify-end overflow-hidden rounded-[8px] md:col-span-2"
+                style={{ border: "1px solid var(--color-hairline)" }}
               >
                 <img
                   src={t.img}
                   alt={t.alt}
                   loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                 />
                 <div
                   className="relative z-10 flex flex-col gap-3 p-8 text-white"
-                  style={{
-                    background:
-                      "linear-gradient(to top, rgba(10,14,26,0.92) 0%, rgba(10,14,26,0.4) 50%, transparent 100%)",
-                  }}
+                  style={{ background: "linear-gradient(to top, rgba(29,29,31,0.85) 0%, rgba(29,29,31,0.2) 50%, transparent 100%)" }}
                 >
-                  <h3 className="font-display text-[28px] font-semibold leading-[1.18] tracking-tight">
+                  <h3 className="font-display text-[28px] font-semibold leading-[1.18]" style={{ letterSpacing: "0.196px" }}>
                     {t.title}
                   </h3>
                   <p className="max-w-[480px] text-[14px] leading-[1.5] text-white/85">
@@ -125,13 +99,14 @@ export default function Features() {
               <Reveal
                 key={t.title}
                 delay={i * 0.08}
-                className="liquid-glass flex h-full flex-col gap-3 rounded-[8px] p-8 transition-all hover:-translate-y-1"
+                className="flex h-full flex-col gap-3 rounded-[8px] p-8 transition-all hover:-translate-y-1"
+                style={{ background: "var(--color-surface)", border: "1px solid var(--color-hairline)" }}
               >
                 {ICONS[t.iconKey!]}
-                <h3 className="font-display text-[24px] font-semibold leading-[1.18] tracking-tight text-foreground">
+                <h3 className="font-display text-[24px] font-semibold leading-[1.18] text-ink" style={{ letterSpacing: "0.196px" }}>
                   {t.title}
                 </h3>
-                <p className="text-[14px] leading-[1.5] text-foreground/75">
+                <p className="text-[14px] leading-[1.5] text-smoke">
                   {t.desc}
                 </p>
               </Reveal>

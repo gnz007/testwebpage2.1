@@ -4,9 +4,10 @@ type Props = {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  style?: React.CSSProperties;
 };
 
-export default function Reveal({ children, delay = 0, className }: Props) {
+export default function Reveal({ children, delay = 0, className, style }: Props) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -19,6 +20,7 @@ export default function Reveal({ children, delay = 0, className }: Props) {
         ease: [0.16, 1, 0.3, 1],
       }}
       className={className}
+      style={style}
     >
       {children}
     </motion.div>

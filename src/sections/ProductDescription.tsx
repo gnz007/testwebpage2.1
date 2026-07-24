@@ -2,28 +2,42 @@ import Reveal from "../components/Reveal";
 
 export default function ProductDescription() {
   return (
-    <section id="producto" className="px-6 py-[14vh] md:px-10">
-      <div className="mx-auto max-w-[760px] text-center">
+    <section id="producto" className="px-[22px] pt-[clamp(80px,12vh,140px)]">
+      <div className="mx-auto max-w-[980px] text-center">
         <Reveal>
-          <p className="mb-5 text-[12px] font-semibold uppercase tracking-[0.18em] text-signal-blue">
+          <p
+            className="mb-5 text-[clamp(12px,1.5vw,14px)] font-semibold uppercase text-apple-blue"
+            style={{ letterSpacing: "0.08em" }}
+          >
             Inteligencia estéril. Cero compromisos.
           </p>
         </Reveal>
         <Reveal delay={0.08}>
-          <h2 className="font-display text-[clamp(32px,5vw,52px)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground">
+          <h2
+            className="font-display font-semibold text-ink"
+            style={{
+              fontSize: "clamp(32px, 5vw, 48px)",
+              lineHeight: 1.14,
+              letterSpacing: "0.44px",
+              textWrap: "balance",
+            }}
+          >
             Cada ítem trazado, cada escaneo confiable.
           </h2>
         </Reveal>
         <Reveal delay={0.16}>
-          <hr className="mx-auto mt-6 h-[2px] w-[60px] border-0 bg-brand-blue" />
+          <span className="mx-auto mt-6 block h-[2px] w-[60px] bg-apple-blue" />
         </Reveal>
         <Reveal delay={0.24}>
-          <p className="mt-7 text-[clamp(18px,2vw,22px)] font-light leading-[1.5] text-foreground/75">
+          <p
+            className="mx-auto mt-7 max-w-[720px] font-light text-smoke"
+            style={{ fontSize: "clamp(17px, 2vw, 21px)", lineHeight: 1.5 }}
+          >
             El gabinete Cykeo mantiene los consumibles quirúrgicos bajo llave,
-            registrados y fáciles de rastrear. Doble cámara más RFID maneja
-            400 ítems con precisión del 99%, reduciendo horas de personal y
-            errores. Funciona en salas estériles, compatible con Windows y
-            Android, y cumple los requisitos de auditoría ANMAT y FDA.
+            registrados y fáciles de rastrear. Doble cámara más RFID maneja 400
+            ítems con precisión del 99%, reduciendo horas de personal y errores.
+            Funciona en salas estériles, compatible con Windows y Android, y
+            cumple los requisitos de auditoría ANMAT y FDA.
           </p>
         </Reveal>
       </div>

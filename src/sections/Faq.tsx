@@ -28,16 +28,17 @@ function FaqItem({
 }) {
   const reduce = useReducedMotion();
   return (
-    <div className="border-b border-white/10">
+    <div style={{ borderBottom: "1px solid var(--color-hairline)" }}>
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-4 py-6 text-left font-display text-[21px] font-normal leading-[1.24] tracking-tight text-foreground"
+        className="flex w-full items-center justify-between gap-4 py-6 text-left font-display text-[21px] font-normal leading-[1.24] text-ink"
+        style={{ letterSpacing: "-0.105px" }}
       >
         <span>{faq.q}</span>
         <svg
-          className="h-5 w-5 flex-shrink-0 text-brand-blue transition-transform duration-300"
+          className="h-5 w-5 shrink-0 text-link-blue transition-transform duration-300"
           style={{ transform: open ? "rotate(45deg)" : "rotate(0deg)" }}
           viewBox="0 0 24 24"
           fill="none"
@@ -56,13 +57,10 @@ function FaqItem({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{
-              duration: reduce ? 0 : 0.4,
-              ease: [0.16, 1, 0.3, 1],
-            }}
+            transition={{ duration: reduce ? 0 : 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="pb-7 text-[17px] leading-[1.5] text-foreground/75 max-w-[72ch]">
+            <div className="pb-7 text-[17px] leading-[1.5] text-smoke max-w-[72ch]">
               {faq.a}
             </div>
           </motion.div>
@@ -75,13 +73,13 @@ function FaqItem({
 export default function Faq() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   return (
-    <section className="px-6 py-[14vh] md:px-10">
-      <div className="mx-auto max-w-[760px]">
-        <Reveal className="mb-12 text-center">
-          <h2 className="font-display text-[clamp(32px,5vw,48px)] font-semibold leading-[1.1] tracking-[-0.02em] text-foreground">
+    <section className="px-[22px] py-[clamp(80px,12vh,140px)]">
+      <div className="mx-auto max-w-[980px]">
+        <Reveal className="mb-16 text-center">
+          <h2 className="font-display font-semibold text-ink" style={{ fontSize: "clamp(32px,5vw,48px)", lineHeight: 1.14, letterSpacing: "0.44px", textWrap: "balance" }}>
             Preguntas frecuentes
           </h2>
-          <hr className="mx-auto mt-6 h-[2px] w-[60px] border-0 bg-brand-blue" />
+          <span className="mx-auto mt-6 block h-[2px] w-[60px] bg-apple-blue" />
         </Reveal>
 
         <Reveal>

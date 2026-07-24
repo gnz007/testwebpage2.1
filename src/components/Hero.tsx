@@ -2,10 +2,15 @@ import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight } from "@phosphor-icons/react";
 import Navbar from "./Navbar";
-import Marquee from "./Marquee";
 
 const VIDEO_URL = "/assets/hero-bg.mp4";
 const VIDEO_POSTER = "/assets/hero-cabinet.png";
+
+const BULLETS = [
+  "Compliance ANMAT y FDA 21 CFR Part 11",
+  "Pantalla táctil HD 21.5″ (Windows / Android)",
+  "Acceso por RFID, huella o reconocimiento facial",
+];
 
 function useVideoFadeLoop(videoRef: React.RefObject<HTMLVideoElement | null>) {
   useEffect(() => {
@@ -37,235 +42,174 @@ function useVideoFadeLoop(videoRef: React.RefObject<HTMLVideoElement | null>) {
       io.observe(video);
       return () => io.disconnect();
     }
-
-    const FADE_DURATION = 500;
-    let rafId = 0;
-    let fadeStart = 0;
-    let phase:
-      | "idle"
-      | "fade-in"
-      | "playing"
-      | "fade-out"
-      | "paused-restart" = "idle";
-
-    const tick = (now: number) => {
-      if (!video) return;
-      const elapsed = now - fadeStart;
-
-      if (phase === "fade-in") {
-        const t = Math.min(1, elapsed / FADE_DURATION);
-        video.style.opacity = String(t);
-        if (t >= 1) {
-          phase = "playing";
-          return;
-        }
-      } else if (phase === "fade-out") {
-        const t = Math.max(0, 1 - elapsed / FADE_DURATION);
-        video.style.opacity = String(t);
-        if (t <= 0) {
-          phase = "paused-restart";
-          setTimeout(() => {
-            if (!video) return;
-            video.currentTime = 0;
-            video.play().catch(() => {});
-            fadeStart = performance.now();
-            phase = "fade-in";
-            rafId = requestAnimationFrame(tick);
-          }, 100);
-          return;
-        }
-      }
-      rafId = requestAnimationFrame(tick);
-    };
-
-    const startFadeIn = () => {
-      fadeStart = performance.now();
-      phase = "fade-in";
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(tick);
-    };
-
-    const startFadeOut = () => {
-      fadeStart = performance.now();
-      phase = "fade-out";
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(tick);
-    };
-
-    video.style.opacity = "0";
-    video.addEventListener("play", startFadeIn);
-    video.addEventListener("ended", startFadeOut);
-
-    video.play().catch(() => {
-      video.style.opacity = "1";
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      video.removeEventListener("play", startFadeIn);
-      video.removeEventListener("ended", startFadeOut);
-    };
   }, [videoRef]);
 }
 
-function HeroHeadline() {
-  const reduce = useReducedMotion();
+function RfidPulse() {
   return (
-    <motion.h1
-      initial={reduce ? {} : { opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: reduce ? 0 : 0.8,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className="font-normal leading-[1.02] tracking-[-0.024em]"
-      style={{
-        fontFamily: '"General Sans", "Inter", ui-sans-serif, system-ui, sans-serif',
-        fontSize: "clamp(64px, 12vw, 180px)",
-      }}
-    >
-      <span className="block text-foreground">Gabinete</span>
-      <span className="block">
-        <span className="text-foreground">Médico </span>
-        <span
-          className="bg-clip-text text-transparent"
-          style={{
-            backgroundImage:
-              "linear-gradient(to left, #0ea5e9, #0071e3, #fcd34d)",
-          }}
-        >
-          RFID
-        </span>
-      </span>
-    </motion.h1>
-  );
-}
-
-function HeroSubAndCta() {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      initial={reduce ? {} : { opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: reduce ? 0 : 0.8,
-        delay: 0.15,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className="mt-6 flex flex-col items-center gap-7"
-    >
-      <p className="max-w-md text-[18px] leading-8 text-hero-sub opacity-80">
-        Almacenamiento inteligente para activos médicos críticos, con
-        trazabilidad total.
-      </p>
-
-      {/* Demo request pill */}
-      <div className="flex items-center gap-2 rounded-[6px] border border-white/10 bg-white/5 p-1 pl-4 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.4)] backdrop-blur-md">
-        <input
-          type="text"
-          placeholder="Institución / hospital / farmacia..."
-          className="w-[220px] bg-transparent py-2 text-[14px] text-foreground placeholder:text-foreground/40"
-          aria-label="Institución para demo"
-        />
-        <button
-          type="button"
-          onClick={() => {
-            const t = document.querySelector("#contacto");
-            if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue text-white transition-all hover:bg-brand-blue-hover hover:shadow-[0_8px_24px_-8px_rgba(0,113,227,0.7)] active:scale-95"
-          aria-label="Solicitar demo"
-        >
-          <ArrowRight size={16} weight="bold" />
-        </button>
-      </div>
-
-      {/* Compliance bullets */}
-      <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-foreground/70">
-        <li className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
-          Compliance ANMAT y FDA 21 CFR Part 11
-        </li>
-        <li className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
-          Pantalla táctil HD 21.5″
-        </li>
-        <li className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
-          Acceso por RFID, huella o reconocimiento facial
-        </li>
-      </ul>
-    </motion.div>
+    <div className="pointer-events-none absolute left-1/2 top-[40%] z-[2] -translate-x-1/2 -translate-y-1/2">
+      <span className="rfid-pulse-ring absolute left-1/2 top-1/2 block h-[60px] w-[60px] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full border-2 border-apple-blue opacity-0" style={{ animation: "rfid-pulse 3s ease-out infinite" }} />
+      <span className="rfid-pulse-ring absolute left-1/2 top-1/2 block h-[60px] w-[60px] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full border-2 border-apple-blue opacity-0" style={{ animation: "rfid-pulse 3s ease-out infinite", animationDelay: "1s" }} />
+      <span className="rfid-pulse-ring absolute left-1/2 top-1/2 block h-[60px] w-[60px] -translate-x-1/2 -translate-y-1/2 scale-0 rounded-full border-2 border-apple-blue opacity-0" style={{ animation: "rfid-pulse 3s ease-out infinite", animationDelay: "2s" }} />
+    </div>
   );
 }
 
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   useVideoFadeLoop(videoRef);
+  const reduce = useReducedMotion();
 
   return (
     <section
       id="top"
-      className="relative flex min-h-screen flex-col overflow-visible bg-bg"
+      className="relative overflow-hidden bg-canvas"
+      style={{ paddingTop: 60 }}
     >
-      {/* Background video layer */}
-      <div className="absolute inset-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          poster={VIDEO_POSTER}
-          className="h-full w-full object-cover"
-          style={{ opacity: 0 }}
-        >
-          <source src={VIDEO_URL} type="video/mp4" />
-        </video>
-        {/* Overlay para garantizar legibilidad del contenido sobre el video */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, hsl(220 30% 6% / 0.55) 0%, hsl(220 30% 6% / 0.78) 100%)",
-          }}
-          aria-hidden="true"
-        />
-      </div>
+      {/* Video de fondo del header hero */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        poster={VIDEO_POSTER}
+        aria-hidden="true"
+        className="absolute inset-0 z-[0] h-full w-full object-cover"
+        style={{ opacity: reduce ? 1 : 0 }}
+      >
+        <source src={VIDEO_URL} type="video/mp4" />
+      </video>
 
-      {/* Centered blurred overlay shape */}
+      {/* Overlay para legibilidad sobre el video (light tokens) */}
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[984px] -translate-x-1/2 -translate-y-1/2 bg-gray-950 opacity-90"
-        style={{ filter: "blur(82px)" }}
+        className="pointer-events-none absolute inset-0 z-[0]"
+        style={{
+          background:
+            "linear-gradient(180deg, color-mix(in srgb, #f5f5f7 55%, transparent) 0%, color-mix(in srgb, #f5f5f7 78%, transparent) 100%)",
+        }}
         aria-hidden="true"
       />
 
-      {/* Content layer */}
-      <div className="relative z-10 flex flex-1 flex-col">
-        <Navbar />
+      {/* Mesh gradient sutil */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[1]"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 600px 400px at 30% 30%, rgba(0,113,227,0.06), transparent 70%), radial-gradient(ellipse 500px 300px at 70% 60%, rgba(41,151,255,0.04), transparent 60%)",
+        }}
+      />
 
-        {/* Centered hero content */}
-        <div className="flex flex-1 flex-col items-center justify-center px-8 pt-8 text-center">
+      {/* Nav */}
+      <Navbar />
+
+      {/* Hero inner — asimetrico: texto izq, imagen der dominante */}
+      <div className="relative z-[2] mx-auto grid max-w-[1440px] items-center gap-12 px-[22px] pb-[clamp(40px,6vh,80px)] pt-[clamp(60px,10vh,100px)] md:grid-cols-2">
+        {/* Columna izquierda: contenido */}
+        <div className="max-w-[540px] md:text-left text-center">
           {/* Eyebrow */}
           <motion.p
-            initial={{ opacity: 0 }}
+            initial={reduce ? {} : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-6 flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.18em] text-foreground/60"
+            transition={{ duration: reduce ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-5 text-[14px] font-normal text-ash"
+            style={{ letterSpacing: "-0.01em" }}
           >
-            <span className="h-1 w-1 rounded-full bg-brand-blue" />
             Distribuido en Argentina · Sede en Buenos Aires
           </motion.p>
 
-          <HeroHeadline />
-          <HeroSubAndCta />
+          {/* H1 */}
+          <motion.h1
+            initial={reduce ? {} : { opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.8, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="font-display font-semibold leading-[1.07] text-ink"
+            style={{
+              fontSize: "clamp(40px, 6vw, 64px)",
+              letterSpacing: "-0.005em",
+              textWrap: "balance",
+            }}
+          >
+            Gabinete Médico RFID
+          </motion.h1>
+
+          {/* Tagline */}
+          <motion.p
+            initial={reduce ? {} : { opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-5 font-light text-smoke"
+            style={{
+              fontSize: "clamp(21px, 2.5vw, 28px)",
+              lineHeight: 1.24,
+              letterSpacing: "-0.105px",
+            }}
+          >
+            Almacenamiento inteligente para activos médicos críticos.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={reduce ? {} : { opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.8, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-9 flex flex-wrap gap-4 md:justify-start justify-center"
+          >
+            <a
+              href="#contacto"
+              className="inline-flex items-center gap-2 rounded-[980px] bg-apple-blue px-[22px] py-[11px] text-[17px] font-normal text-white transition-all hover:bg-apple-blue-hover active:scale-[0.98]"
+            >
+              Solicitar demo
+              <span className="ml-1 flex h-7 w-7 items-center justify-center rounded-full bg-white/22">
+                <ArrowRight size={14} weight="bold" />
+              </span>
+            </a>
+            <a
+              href="#especificaciones"
+              className="inline-flex items-center rounded-[980px] border border-link-blue px-[22px] py-[11px] text-[17px] font-normal text-link-blue transition-all hover:bg-[rgba(0,102,204,0.06)]"
+            >
+              Ver especificaciones
+            </a>
+          </motion.div>
+
+          {/* Bullets de compliance */}
+          <motion.ul
+            initial={reduce ? {} : { opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0 : 0.8, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-9 flex flex-wrap gap-x-8 gap-y-3 text-[14px] text-graphite md:justify-start justify-center"
+          >
+            {BULLETS.map((b) => (
+              <li key={b} className="flex items-center gap-2">
+                <svg className="h-4 w-4 shrink-0 text-apple-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12l5 5L20 7" />
+                </svg>
+                {b}
+              </li>
+            ))}
+          </motion.ul>
         </div>
 
-        {/* Marquee pinned bottom */}
-        <div className="pb-10">
-          <Marquee />
-        </div>
+        {/* Columna derecha: imagen del producto */}
+        <motion.div
+          initial={reduce ? {} : { opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduce ? 0 : 0.8, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          className="relative order-[-1] flex justify-center items-center md:order-none"
+        >
+          <RfidPulse />
+          <img
+            src="/assets/hero-cabinet.png"
+            alt="Gabinete médico RFID Cykeo con pantalla táctil de 21.5 pulgadas y puertas de vidrio"
+            width={1024}
+            height={1024}
+            fetchPriority="high"
+            className="relative z-[1] w-full max-w-[560px] rounded-[8px] object-cover"
+            style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0px" }}
+          />
+        </motion.div>
       </div>
     </section>
   );
