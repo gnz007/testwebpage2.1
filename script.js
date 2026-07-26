@@ -319,39 +319,7 @@
   }
 
   /* ----------------------------------------------------------------------
-     9. HERO VIDEO — pausa cuando está fuera del viewport (performance)
-     Respeta prefers-reduced-motion: no autoreproduce, muestra poster.
-     ---------------------------------------------------------------------- */
-  function initHeroVideo() {
-    var video = document.querySelector(".hero__video");
-    if (!video) return;
-
-    if (reduceMotion) {
-      video.pause();
-      video.removeAttribute("autoplay");
-      return;
-    }
-
-    if (!("IntersectionObserver" in window)) return;
-
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            var p = video.play();
-            if (p && typeof p.catch === "function") p.catch(function () {});
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.05 }
-    );
-    observer.observe(video);
-  }
-
-  /* ----------------------------------------------------------------------
-     10. SMOOTH SCROLL — para anchor links
+     9. SMOOTH SCROLL — para anchor links
      ---------------------------------------------------------------------- */
   function initSmoothScroll() {
     var links = document.querySelectorAll('a[href^="#"]');
@@ -372,6 +340,118 @@
   }
 
   /* ----------------------------------------------------------------------
+     10. HERO VIDEO — performance & carga
+     - Estado de carga: opacity 0 hasta que el video puede reproducirse
+     - Autoplay robusto: reintento en primera interacción del usuario
+       (algunos navegadores bloquean autoplay hasta gesture)
+     - IntersectionObserver: pausa el video cuando el hero sale del viewport
+       (ahorra CPU/GPU en scroll largo)
+     - Visibility change: pausa al cambiar de pestaña
+     - El video ambiental (muted, blur) se reproduce SIEMPRE, incluso bajo
+       prefers-reduced-motion (es textura atmosférica, no animación agresiva)
+     ---------------------------------------------------------------------- */
+  function initHeroVideo() {
+    var video = document.querySelector(".hero__bg-video");
+    if (!video) return;
+
+    // Estado de carga: arranca "loading" (opacity 0), se revela al poder jugar
+    video.classList.add("is-loading");
+
+    function reveal() {
+      video.classList.remove("is-loading");
+    }
+
+    if (video.readyState >= 2) {
+      reveal();
+    } else {
+      video.addEventListener("loadeddata", reveal, { once: true });
+      video.addEventListener("canplay", reveal, { once: true });
+      setTimeout(reveal, 1500);
+    }
+
+    // Intentar reproducir. Reintento robusto ante bloqueo de autoplay.
+    var playAttempts = 0;
+    var MAX_PLAY_ATTEMPTS = 10;
+    function tryPlay() {
+      if (video.paused && playAttempts < MAX_PLAY_ATTEMPTS) {
+        playAttempts++;
+        var p = video.play();
+        if (p && typeof p.then === "function") {
+          p.then(function () {
+            playAttempts = 0; // reset al tener éxito
+          }).catch(function () {
+            // Autoplay bloqueado: reintentar en la primera interacción
+            // (los listeners de gesture se registran abajo, una sola vez)
+          });
+        }
+      }
+    }
+    tryPlay();
+
+    // Reintento en el primer gesture del usuario (desktop + móvil).
+    // Algunos navegadores (Safari con políticas estrictas, modo low power)
+    // bloquean autoplay hasta cualquier interacción.
+    var gestureStarted = false;
+    function startOnGesture() {
+      if (gestureStarted) return;
+      gestureStarted = true;
+      tryPlay();
+      // limpiar listeners tras el primer gesture exitoso
+      ["pointerdown", "keydown", "touchstart", "click"].forEach(function (ev) {
+        document.removeEventListener(ev, startOnGesture, true);
+      });
+    }
+    ["pointerdown", "keydown", "touchstart", "click"].forEach(function (ev) {
+      document.addEventListener(ev, startOnGesture, { once: false, capture: true, passive: true });
+    });
+
+    // Reintento periódico de seguridad: cada 2s, si sigue pausado, intentar
+    // de nuevo durante los primeros ~20s (cubre casos de bloqueo temporal).
+    var safetyRetry = setInterval(function () {
+      if (!video.paused || playAttempts >= MAX_PLAY_ATTEMPTS) {
+        clearInterval(safetyRetry);
+        return;
+      }
+      tryPlay();
+    }, 2000);
+    setTimeout(function () { clearInterval(safetyRetry); }, 20000);
+
+    // Pausar/reanudar según visibilidad del hero en viewport (performance)
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              if (video.paused) {
+                tryPlay();
+              }
+            } else {
+              if (!video.paused) {
+                video.pause();
+              }
+            }
+          });
+        },
+        { threshold: 0.05 }
+      );
+      io.observe(video);
+    }
+
+    // Pausar al cambiar de pestaña (ahorra recursos en background)
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        if (!video.paused) video.pause();
+      } else {
+        var rect = video.getBoundingClientRect();
+        var inView = rect.bottom > 0 && rect.top < window.innerHeight;
+        if (inView && video.paused) {
+          tryPlay();
+        }
+      }
+    });
+  }
+
+  /* ----------------------------------------------------------------------
      INIT
      ---------------------------------------------------------------------- */
   function init() {
@@ -383,8 +463,8 @@
     initDarkBandParallax();
     initFaq();
     initForm();
-    initHeroVideo();
     initSmoothScroll();
+    initHeroVideo();
   }
 
   if (document.readyState === "loading") {
