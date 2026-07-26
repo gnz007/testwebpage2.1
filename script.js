@@ -452,6 +452,223 @@
   }
 
   /* ----------------------------------------------------------------------
+     11. CAROUSEL — vanilla JS carousel
+     Adaptación del componente React shadcn/carousel (con motion/react) a
+     vanilla JS. Soporta:
+     - Drag horizontal (touch + mouse)
+     - Flechas prev/next
+     - Indicadores de puntos
+     - Responsive (1 item en móvil, N items en desktop según clase mod)
+     - Respeta prefers-reduced-motion (sin transición)
+     ---------------------------------------------------------------------- */
+  function initCarousels() {
+    var carousels = document.querySelectorAll("[data-carousel]");
+    carousels.forEach(function (root) {
+      initOneCarousel(root);
+    });
+  }
+
+  function initOneCarousel(root) {
+    var track = root.querySelector(".carousel__track");
+    var items = root.querySelectorAll(".carousel__item");
+    var prevBtn = root.querySelector("[data-carousel-prev]");
+    var nextBtn = root.querySelector("[data-carousel-next]");
+    var indicatorsEl = root.querySelector("[data-carousel-indicators]");
+    if (!track || items.length === 0) return;
+
+    var index = 0;
+    var reduceMotionLocal = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Determinar columnas según clase mod y breakpoint
+    function getVisibleCount() {
+      var w = window.innerWidth;
+      var cols = 1;
+      if (root.classList.contains("carousel--cols-3") && w >= 769) cols = 3;
+      else if (root.classList.contains("carousel--cols-2") && w >= 769) cols = 2;
+      return cols;
+    }
+
+    // Máximo índice permitido (no desbordar)
+    function maxIndex() {
+      var visible = getVisibleCount();
+      var max = items.length - visible;
+      return Math.max(0, max);
+    }
+
+    // Calcular translateX en % basado en index y items visibles
+    function getTranslatePct() {
+      var visible = getVisibleCount();
+      // Cada item mide (100/visible)% del track; moverse 1 item = (100/visible)%
+      return -(index * (100 / visible));
+    }
+
+    function applyTransform(animate) {
+      if (!animate) track.classList.add("no-transition");
+      else track.classList.remove("no-transition");
+      track.style.transform = "translateX(" + getTranslatePct() + "%)";
+    }
+
+    function updateState() {
+      // Botones: disabled en los extremos
+      if (prevBtn) prevBtn.disabled = index <= 0;
+      if (nextBtn) nextBtn.disabled = index >= maxIndex();
+      // Indicadores
+      if (indicatorsEl) {
+        var dots = indicatorsEl.querySelectorAll(".carousel__dot");
+        dots.forEach(function (dot, i) {
+          if (i === index) dot.classList.add("is-active");
+          else dot.classList.remove("is-active");
+        });
+      }
+    }
+
+    // Construir indicadores (uno por cada slide posible = maxIndex()+1)
+    function buildIndicators() {
+      if (!indicatorsEl) return;
+      indicatorsEl.innerHTML = "";
+      var count = maxIndex() + 1;
+      for (var i = 0; i < count; i++) {
+        (function (i) {
+          var dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "carousel__dot";
+          dot.setAttribute("role", "tab");
+          dot.setAttribute("aria-label", "Ir al slide " + (i + 1));
+          dot.addEventListener("click", function () {
+            goTo(i);
+          });
+          indicatorsEl.appendChild(dot);
+        })(i);
+      }
+    }
+
+    function goTo(newIndex) {
+      var max = maxIndex();
+      if (newIndex < 0) newIndex = 0;
+      if (newIndex > max) newIndex = max;
+      index = newIndex;
+      applyTransform(true);
+      updateState();
+    }
+
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+
+    // Botones
+    if (prevBtn) prevBtn.addEventListener("click", prev);
+    if (nextBtn) nextBtn.addEventListener("click", next);
+
+    // Drag (touch + mouse)
+    var isDragging = false;
+    var startX = 0;
+    var startTranslate = 0;
+    var dragDelta = 0;
+    var trackWidth = 0;
+
+    function pointerDown(e) {
+      isDragging = true;
+      startX = (e.touches ? e.touches[0].clientX : e.clientX);
+      trackWidth = track.offsetWidth;
+      dragDelta = 0;
+      startTranslate = getTranslatePct();
+      track.classList.add("is-dragging");
+      track.classList.add("no-transition");
+    }
+
+    function pointerMove(e) {
+      if (!isDragging) return;
+      var currentX = (e.touches ? e.touches[0].clientX : e.clientX);
+      dragDelta = currentX - startX;
+      // Convertir delta en px a % del track
+      var deltaPct = (dragDelta / trackWidth) * 100;
+      var newTranslate = startTranslate + deltaPct;
+      // Restringir dentro de límites (con rubber-band leve)
+      var visible = getVisibleCount();
+      var minTranslate = -(maxIndex() * (100 / visible));
+      var maxTranslate = 0;
+      if (newTranslate > maxTranslate) newTranslate = maxTranslate + (newTranslate - maxTranslate) * 0.3;
+      if (newTranslate < minTranslate) newTranslate = minTranslate + (newTranslate - minTranslate) * 0.3;
+      track.style.transform = "translateX(" + newTranslate + "%)";
+    }
+
+    function pointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+      track.classList.remove("is-dragging");
+      track.classList.remove("no-transition");
+      // Umbral: 20% del ancho de un item
+      var visible = getVisibleCount();
+      var threshold = trackWidth / visible * 0.2;
+      if (Math.abs(dragDelta) > threshold) {
+        if (dragDelta < 0) next();
+        else prev();
+      } else {
+        // volver a posición actual sin cambiar index
+        applyTransform(true);
+      }
+      updateState();
+    }
+
+    // Touch events
+    track.addEventListener("touchstart", pointerDown, { passive: true });
+    track.addEventListener("touchmove", pointerMove, { passive: true });
+    track.addEventListener("touchend", pointerUp);
+    track.addEventListener("touchcancel", pointerUp);
+
+    // Mouse events (solo desktop, no touch)
+    if (!isTouch) {
+      track.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        pointerDown(e);
+      });
+      window.addEventListener("mousemove", pointerMove);
+      window.addEventListener("mouseup", pointerUp);
+      // Click en items dentro del track durante drag: prevenir
+      track.addEventListener("click", function (e) {
+        if (Math.abs(dragDelta) > 10) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+    }
+
+    // Teclado (flechas izquierda/derecha cuando el carrusel tiene foco)
+    root.setAttribute("tabindex", "0");
+    root.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); next(); }
+    });
+
+    // Resize: recalcular columnas y reconstruir indicadores
+    var lastVisibleCount = getVisibleCount();
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        var visible = getVisibleCount();
+        // Si cambió el breakpoint de columnas, resetear a 0 para que el
+        // usuario no quede viendo un slide intermedio sin contexto.
+        if (visible !== lastVisibleCount) {
+          index = 0;
+          lastVisibleCount = visible;
+        } else {
+          // Re-clamp index al nuevo maxIndex (por si cambió items)
+          var max = maxIndex();
+          if (index > max) index = max;
+        }
+        buildIndicators();
+        applyTransform(false);
+        updateState();
+      }, 150);
+    });
+
+    // Init
+    buildIndicators();
+    applyTransform(false);
+    updateState();
+  }
+
+  /* ----------------------------------------------------------------------
      INIT
      ---------------------------------------------------------------------- */
   function init() {
@@ -465,6 +682,7 @@
     initForm();
     initSmoothScroll();
     initHeroVideo();
+    initCarousels();
   }
 
   if (document.readyState === "loading") {

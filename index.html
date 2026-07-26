@@ -304,24 +304,8 @@
     </section>
 
     <!-- ==================================================================
-         ESCENARIOS — chips horizontales
-         ================================================================== -->
-    <section id="aplicaciones" class="section section--text">
-      <div class="container">
-        <div class="chips reveal">
-          <span class="chip" data-delay="1">Centro quirúrgico</span>
-          <span class="chip" data-delay="2">Instrumental de quirófano</span>
-          <span class="chip" data-delay="3">Sala limpia farmacéutica</span>
-          <span class="chip" data-delay="4">Anestesia en farmacia</span>
-          <span class="chip" data-delay="5">Gestión médica</span>
-          <span class="chip" data-delay="6">Laboratorio biológico</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================================================================
-         CARACTERÍSTICAS — bento reducido a 5 tiles con composición variada
-         (no 9 cards idénticas — 2 con imagen grande + 3 de texto)
+         CARACTERÍSTICAS — carrusel con los tiles existentes
+         (adaptación del componente React shadcn/carousel a vanilla JS)
          ================================================================== -->
     <section id="caracteristicas" class="section">
       <div class="container">
@@ -330,73 +314,99 @@
           <hr class="accent-rule" />
         </div>
 
-        <div class="bento">
-          <!-- Tile grande 1 — con imagen, col-span 2 -->
-          <article class="bento__tile bento__tile--large reveal">
-            <img src="assets/scene-or.png" alt="Quirófano con gabinete RFID Cykeo en uso" loading="lazy" />
-            <div class="bento__overlay">
-              <h3 class="bento__title bento__title--light">Integración con flujo quirúrgico</h3>
-              <p class="bento__desc bento__desc--light">
-                Interfaces HL7 / FHIR sincronizan con Epic y Cerner para preparar kits por caso
-                usando datos del EMR en tiempo real.
-              </p>
+        <div class="carousel carousel--cols-2 reveal" data-carousel>
+          <div class="carousel__viewport">
+            <div class="carousel__track">
+
+              <div class="carousel__item">
+                <article class="bento__tile bento__tile--large">
+                  <img src="assets/scene-or.png" alt="Quirófano con gabinete RFID Cykeo en uso" loading="lazy" />
+                  <div class="bento__overlay">
+                    <h3 class="bento__title bento__title--light">Integración con flujo quirúrgico</h3>
+                    <p class="bento__desc bento__desc--light">
+                      Interfaces HL7 / FHIR sincronizan con Epic y Cerner para preparar kits por caso
+                      usando datos del EMR en tiempo real.
+                    </p>
+                  </div>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="bento__tile bento__tile--large">
+                  <img src="assets/scene-pharmacy.png" alt="Farmacia hospitalaria con gabinete RFID" loading="lazy" />
+                  <div class="bento__overlay">
+                    <h3 class="bento__title bento__title--light">Trazabilidad farmacéutica completa</h3>
+                    <p class="bento__desc bento__desc--light">
+                      Registro blockchain con timestamps cifrados SHA-256 sobre Hyperledger.
+                      Cada retiro queda documentado para auditorías ANMAT.
+                    </p>
+                  </div>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="bento__tile">
+                  <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                  <h3 class="bento__title">Doble autenticación</h3>
+                  <p class="bento__desc">
+                    Vena del dedo + RFID con auditoría, cumple FDA 21 CFR Part 11.
+                  </p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="bento__tile">
+                  <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                    <path d="M9 9h6v6H9z" />
+                    <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
+                  </svg>
+                  <h3 class="bento__title">Escaneo de alta densidad</h3>
+                  <p class="bento__desc">
+                    Impinj R2000 identifica 800+ ítems por estante, 1.000 tags/min.
+                  </p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="bento__tile">
+                  <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
+                    <path d="M12 22V12M12 12L3 7M12 12l9-5" />
+                  </svg>
+                  <h3 class="bento__title">Construcción ruggedizada</h3>
+                  <p class="bento__desc">
+                    Acero al carbono 1.2mm, 200kg de carga, IP54 para lavado de quirófano.
+                  </p>
+                </article>
+              </div>
+
             </div>
-          </article>
+          </div>
 
-          <!-- Tile texto 1 — escaneo RFID -->
-          <article class="bento__tile reveal" data-delay="1">
-            <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="6" y="6" width="12" height="12" rx="2" />
-              <path d="M9 9h6v6H9z" />
-              <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
-            </svg>
-            <h3 class="bento__title">Escaneo de alta densidad</h3>
-            <p class="bento__desc">
-              Impinj R2000 identifica 800+ ítems por estante, 1.000 tags/min.
-            </p>
-          </article>
+          <div class="carousel__nav" aria-hidden="false">
+            <button type="button" class="carousel__nav-btn" data-carousel-prev aria-label="Anterior">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button type="button" class="carousel__nav-btn" data-carousel-next aria-label="Siguiente">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
 
-          <!-- Tile texto 2 — autenticación -->
-          <article class="bento__tile reveal" data-delay="2">
-            <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z" />
-              <path d="M9 12l2 2 4-4" />
-            </svg>
-            <h3 class="bento__title">Doble autenticación</h3>
-            <p class="bento__desc">
-              Vena del dedo + RFID con auditoría, cumple FDA 21 CFR Part 11.
-            </p>
-          </article>
-
-          <!-- Tile grande 2 — con imagen, col-span 2 -->
-          <article class="bento__tile bento__tile--large reveal" data-delay="3">
-            <img src="assets/scene-pharmacy.png" alt="Farmacia hospitalaria con gabinete RFID" loading="lazy" />
-            <div class="bento__overlay">
-              <h3 class="bento__title bento__title--light">Trazabilidad farmacéutica completa</h3>
-              <p class="bento__desc bento__desc--light">
-                Registro blockchain con timestamps cifrados SHA-256 sobre Hyperledger.
-                Cada retiro queda documentado para auditorías ANMAT.
-              </p>
-            </div>
-          </article>
-
-          <!-- Tile texto 3 — construcción -->
-          <article class="bento__tile reveal" data-delay="4">
-            <svg class="bento__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z" />
-              <path d="M12 22V12M12 12L3 7M12 12l9-5" />
-            </svg>
-            <h3 class="bento__title">Construcción ruggedizada</h3>
-            <p class="bento__desc">
-              Acero al carbono 1.2mm, 200kg de carga, IP54 para lavado de quirófano.
-            </p>
-          </article>
+          <div class="carousel__indicators" data-carousel-indicators role="tablist" aria-label="Slides del carrusel"></div>
         </div>
       </div>
     </section>
 
     <!-- ==================================================================
-         ESPECIFICACIONES — cards con valor grande, no tabla larga
+         ESPECIFICACIONES — carrusel de cards con valor grande
          ================================================================== -->
     <section id="especificaciones" class="section section--elevated">
       <div class="container">
@@ -408,37 +418,75 @@
           </p>
         </div>
 
-        <div class="specs">
-          <article class="spec-card reveal" data-delay="1">
-            <div class="spec-card__value">21.5″</div>
-            <div class="spec-card__label">Pantalla táctil capacitiva</div>
-            <p class="spec-card__body">HD multitouch con Windows o Android. Control total del inventario a la vista, escaneos completos en segundos.</p>
-          </article>
-          <article class="spec-card reveal" data-delay="2">
-            <div class="spec-card__value">400</div>
-            <div class="spec-card__label">Capacidad de ítems</div>
-            <p class="spec-card__body">Hasta 400 piezas trazadas en simultáneo con precisión superior al 99%, incluso a través de puertas de vidrio.</p>
-          </article>
-          <article class="spec-card reveal" data-delay="3">
-            <div class="spec-card__value">≤5s</div>
-            <div class="spec-card__label">Velocidad de escaneo</div>
-            <p class="spec-card__body">Escaneo completo del gabinete en 5 segundos, 1.000 tags por minuto. Rotación de quirófano sin demoras.</p>
-          </article>
-          <article class="spec-card reveal" data-delay="1">
-            <div class="spec-card__value">IP54</div>
-            <div class="spec-card__label">Certificación ambiental</div>
-            <p class="spec-card__body">Resistente a polvo y agua. Soporta lavado de descontaminación estándar en quirófanos argentinos.</p>
-          </article>
-          <article class="spec-card reveal" data-delay="2">
-            <div class="spec-card__value">200kg</div>
-            <div class="spec-card__label">Carga máxima</div>
-            <p class="spec-card__body">Chasis de acero al carbono de 1.2mm. Construido para uso intensivo en ambientes hospitalarios exigentes.</p>
-          </article>
-          <article class="spec-card reveal" data-delay="3">
-            <div class="spec-card__value">840-960</div>
-            <div class="spec-card__label">Rango de frecuencia (MHz)</div>
-            <p class="spec-card__body">Cobertura UHF global. Compatible con estándares EPC C1G2 e ISO 18000-6C para tags de cualquier proveedor.</p>
-          </article>
+        <div class="carousel carousel--cols-3 reveal" data-carousel>
+          <div class="carousel__viewport">
+            <div class="carousel__track">
+
+              <div class="carousel__item">
+                <article class="spec-card">
+                  <div class="spec-card__value">21.5″</div>
+                  <div class="spec-card__label">Pantalla táctil capacitiva</div>
+                  <p class="spec-card__body">HD multitouch con Windows o Android. Control total del inventario a la vista, escaneos completos en segundos.</p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="spec-card">
+                  <div class="spec-card__value">400</div>
+                  <div class="spec-card__label">Capacidad de ítems</div>
+                  <p class="spec-card__body">Hasta 400 piezas trazadas en simultáneo con precisión superior al 99%, incluso a través de puertas de vidrio.</p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="spec-card">
+                  <div class="spec-card__value">≤5s</div>
+                  <div class="spec-card__label">Velocidad de escaneo</div>
+                  <p class="spec-card__body">Escaneo completo del gabinete en 5 segundos, 1.000 tags por minuto. Rotación de quirófano sin demoras.</p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="spec-card">
+                  <div class="spec-card__value">IP54</div>
+                  <div class="spec-card__label">Certificación ambiental</div>
+                  <p class="spec-card__body">Resistente a polvo y agua. Soporta lavado de descontaminación estándar en quirófanos argentinos.</p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="spec-card">
+                  <div class="spec-card__value">200kg</div>
+                  <div class="spec-card__label">Carga máxima</div>
+                  <p class="spec-card__body">Chasis de acero al carbono de 1.2mm. Construido para uso intensivo en ambientes hospitalarios exigentes.</p>
+                </article>
+              </div>
+
+              <div class="carousel__item">
+                <article class="spec-card">
+                  <div class="spec-card__value">840-960</div>
+                  <div class="spec-card__label">Rango de frecuencia (MHz)</div>
+                  <p class="spec-card__body">Cobertura UHF global. Compatible con estándares EPC C1G2 e ISO 18000-6C para tags de cualquier proveedor.</p>
+                </article>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="carousel__nav" aria-hidden="false">
+            <button type="button" class="carousel__nav-btn" data-carousel-prev aria-label="Anterior">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button type="button" class="carousel__nav-btn" data-carousel-next aria-label="Siguiente">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="carousel__indicators" data-carousel-indicators role="tablist" aria-label="Slides del carrusel"></div>
         </div>
 
         <p class="footnote reveal">
@@ -531,15 +579,15 @@
           Enviá tus requisitos y datos de contacto válidos. Nuestros ingenieros entregan una
           solución personalizada en 24 horas.
         </p>
-        <div class="reveal" data-delay="2">
-          <a href="#contacto" class="btn btn--primary">
-            Solicitar demo
-            <span class="btn__icon-wrap">
-              <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <div class="cta-actions reveal" data-delay="2">
+          <span class="rainbow-btn-wrap">
+            <a href="#contacto" class="rainbow-btn">
+              Solicitar demo
+              <svg class="rainbow-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </span>
-          </a>
+            </a>
+          </span>
         </div>
       </div>
     </section>
@@ -633,16 +681,16 @@
           <a href="#producto" class="footer__link">Visión general</a>
           <a href="#caracteristicas" class="footer__link">Características</a>
           <a href="#especificaciones" class="footer__link">Especificaciones</a>
-          <a href="#aplicaciones" class="footer__link">Aplicaciones</a>
+          <a href="#contacto" class="footer__link">Solicitar demo</a>
         </div>
 
         <!-- Soluciones -->
         <div class="footer__col">
           <h3 class="footer__heading">Soluciones</h3>
-          <a href="#aplicaciones" class="footer__link">Centro quirúrgico</a>
-          <a href="#aplicaciones" class="footer__link">Farmacia hospitalaria</a>
-          <a href="#aplicaciones" class="footer__link">Laboratorio</a>
-          <a href="#aplicaciones" class="footer__link">Sustancias controladas</a>
+          <a href="#caracteristicas" class="footer__link">Centro quirúrgico</a>
+          <a href="#caracteristicas" class="footer__link">Farmacia hospitalaria</a>
+          <a href="#caracteristicas" class="footer__link">Laboratorio</a>
+          <a href="#caracteristicas" class="footer__link">Sustancias controladas</a>
         </div>
 
         <!-- Contacto -->
