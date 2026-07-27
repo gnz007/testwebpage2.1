@@ -544,72 +544,103 @@ p { text-wrap: pretty; }
 }
 
 /* ==========================================================================
-   9. THEME TOGGLE — switch deslizante con sun/moon (Uiverse by satyamchaudharydev)
+   9. THEME TOGGLE — MorphButton (Moon/Sun swap on hover)
+   Adaptación vanilla del componente React MorphButton con framer-motion.
+   Botón píldora con icono que cambia de Moon a Sun al hover (spring anim).
    ========================================================================== */
-/* The switch - the box around the slider */
-.switch {
-  display: block;
-  --width-of-switch: 3.5em;
-  --height-of-switch: 2em;
-  /* size of sliding icon -- sun and moon */
-  --size-of-icon: 1.4em;
-  /* it is like a inline-padding of switch */
-  --slider-offset: 0.3em;
+.morph-btn {
   position: relative;
-  width: var(--width-of-switch);
-  height: var(--height-of-switch);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 24px;
+  border-radius: 40px;
+  /* Fondo translúcido: se adapta a light/dark via currentColor del texto.
+     En light mode el texto es oscuro, en dark mode claro.
+     Usamos color-mix para crear un fondo sutil basado en el ink. */
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 5%, transparent);
+  color: var(--ink);
+  font-family: var(--font-text);
+  cursor: pointer;
   flex-shrink: 0;
-  cursor: pointer;
+  transition: background-color 150ms var(--ease), transform 200ms var(--ease);
+}
+.morph-btn:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  transform: scale(1.02);
+}
+.morph-btn:active {
+  transform: scale(0.96);
+}
+.morph-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.35);
 }
 
-/* Hide default HTML checkbox */
-.switch input {
+/* Icon container — 16x16, centrado */
+.morph-btn__icon-wrap {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.morph-btn__icon {
+  position: absolute;
+  inset: 0;
+  width: 16px;
+  height: 16px;
+  /* Spring animation para el swap (stiffness 600, damping 25 ≈ 0.4s spring) */
+  transition: opacity 250ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Moon: visible por defecto (no hover) */
+.morph-btn__icon--moon {
+  opacity: 1;
+  transform: scale(1);
+}
+.morph-btn__icon--sun {
   opacity: 0;
-  width: 0;
-  height: 0;
+  transform: scale(0.5);
+}
+/* En hover: swap a Sun */
+.morph-btn:hover .morph-btn__icon--moon {
+  opacity: 0;
+  transform: scale(0.5);
+}
+.morph-btn:hover .morph-btn__icon--sun {
+  opacity: 1;
+  transform: scale(1);
 }
 
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #f4f4f5;
-  transition: .4s;
-  border-radius: 30px;
+/* Label "Theme" */
+.morph-btn__label {
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  margin-left: 10px;
 }
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: var(--size-of-icon, 1.4em);
-  width: var(--size-of-icon, 1.4em);
-  border-radius: 20px;
-  left: var(--slider-offset, 0.3em);
-  top: 50%;
-  transform: translateY(-50%);
-  background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
-  transition: .4s;
+/* En mobile el botón puede ser más compacto (solo icono) si hace falta */
+@media (max-width: 768px) {
+  .morph-btn {
+    padding: 0 16px;
+  }
 }
 
-/* Dark mode = checked state */
-.switch input:checked + .slider {
-  background-color: #303136;
+/* Reduced motion: sin animación de swap ni scale */
+@media (prefers-reduced-motion: reduce) {
+  .morph-btn,
+  .morph-btn__icon {
+    transition: none;
+  }
+  .morph-btn:hover { transform: none; }
+  .morph-btn:active { transform: none; }
 }
-
-.switch input:checked + .slider:before {
-  left: calc(100% - (var(--size-of-icon, 1.4em) + var(--slider-offset, 0.3em)));
-  background: #303136;
-  /* moon shape: inset shadows create the crescent */
-  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
-}
-
-/* Sincronizar el estado del checkbox con data-theme.
-   El JS setea data-theme="dark" → el checkbox debe estar checked. */
-[data-theme="dark"] .switch input { /* default checked state via JS */ }
 
 /* ==========================================================================
    10. BUTTONS — Apple pill system
@@ -2123,7 +2154,7 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
    23. PRINT — clean print styles
    ========================================================================== */
 @media print {
-  .nav, .scroll-progress, .skip-link, .switch, .dark-band__img,
+  .nav, .scroll-progress, .skip-link, .morph-btn, .dark-band__img,
   .hero__bg-video, .hero__bg-poster, .hero__scrim, .hero__mesh,
   .nav-blur, .nav__hamburger, .mobile-menu, .mobile-menu-backdrop,
   .hero__typewriter { display: none !important; }

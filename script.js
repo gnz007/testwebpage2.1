@@ -133,30 +133,30 @@
   }
 
   /* ----------------------------------------------------------------------
-     4. THEME TOGGLE — switch de modo claro/oscuro
-     Lee el tema inicial del <html> (seteado por el script anti-FOUC).
-     Persiste en localStorage. Por defecto arranca siempre en light.
+     4. THEME TOGGLE — MorphButton (Moon/Sun swap on hover)
+     Botón que alterna entre modo claro/oscuro al hacer click.
+     El icono Moon se muestra por defecto; Sun aparece en hover (CSS).
+     Persiste en localStorage. Por defecto arranca en light.
      ---------------------------------------------------------------------- */
   function initThemeToggle() {
-    var checkbox = document.getElementById("theme-toggle-checkbox");
-    if (!checkbox) return;
+    var btn = document.getElementById("theme-toggle");
+    if (!btn) return;
 
-    // Sincronizar el checkbox con el tema actual (seteado por el script anti-FOUC)
-    function syncCheckbox() {
+    function updateLabel() {
       var current = document.documentElement.getAttribute("data-theme") || "light";
-      checkbox.checked = (current === "dark");
-      checkbox.setAttribute("aria-label", current === "light" ? "Activar modo oscuro" : "Activar modo claro");
+      btn.setAttribute("aria-label", current === "light" ? "Activar modo oscuro" : "Activar modo claro");
+      btn.setAttribute("title", current === "light" ? "Modo oscuro" : "Modo claro");
     }
 
-    // Escuchar cambios en el checkbox (click en el switch)
-    checkbox.addEventListener("change", function () {
-      var next = checkbox.checked ? "dark" : "light";
+    btn.addEventListener("click", function () {
+      var current = document.documentElement.getAttribute("data-theme") || "light";
+      var next = current === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", next);
       try { localStorage.setItem("ck-theme", next); } catch (e) {}
-      checkbox.setAttribute("aria-label", next === "light" ? "Activar modo oscuro" : "Activar modo claro");
+      updateLabel();
     });
 
-    syncCheckbox();
+    updateLabel();
   }
 
   /* ----------------------------------------------------------------------
