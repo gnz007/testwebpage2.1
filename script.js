@@ -138,29 +138,25 @@
      Persiste en localStorage. Por defecto arranca siempre en light.
      ---------------------------------------------------------------------- */
   function initThemeToggle() {
-    var btn = document.getElementById("theme-toggle");
-    if (!btn) return;
+    var checkbox = document.getElementById("theme-toggle-checkbox");
+    if (!checkbox) return;
 
-    function updateLabel() {
+    // Sincronizar el checkbox con el tema actual (seteado por el script anti-FOUC)
+    function syncCheckbox() {
       var current = document.documentElement.getAttribute("data-theme") || "light";
-      if (current === "light") {
-        btn.setAttribute("aria-label", "Activar modo oscuro");
-        btn.setAttribute("title", "Modo oscuro");
-      } else {
-        btn.setAttribute("aria-label", "Activar modo claro");
-        btn.setAttribute("title", "Modo claro");
-      }
+      checkbox.checked = (current === "dark");
+      checkbox.setAttribute("aria-label", current === "light" ? "Activar modo oscuro" : "Activar modo claro");
     }
 
-    btn.addEventListener("click", function () {
-      var current = document.documentElement.getAttribute("data-theme") || "light";
-      var next = current === "light" ? "dark" : "light";
+    // Escuchar cambios en el checkbox (click en el switch)
+    checkbox.addEventListener("change", function () {
+      var next = checkbox.checked ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", next);
       try { localStorage.setItem("ck-theme", next); } catch (e) {}
-      updateLabel();
+      checkbox.setAttribute("aria-label", next === "light" ? "Activar modo oscuro" : "Activar modo claro");
     });
 
-    updateLabel();
+    syncCheckbox();
   }
 
   /* ----------------------------------------------------------------------
@@ -197,8 +193,13 @@
     var onScroll = rafThrottle(function () {
       var rect = band.getBoundingClientRect();
       if (rect.bottom > 0 && rect.top < window.innerHeight) {
-        var offset = (window.innerHeight - rect.top) * 0.15;
-        img.style.transform = "translateY(" + offset + "px) scale(1.1)";
+        // MOD 3: parallax suave con scale(1.25) para evitar línea negra.
+        // El offset se reduce a 0.08 (era 0.15) y se centra dentro del
+        // range que permite la imagen agrandada (top:-12.5%, height:125%).
+        var offset = (window.innerHeight - rect.top) * 0.08;
+        // Limitar el offset para que nunca exceda el margen de la imagen
+        offset = Math.max(-40, Math.min(40, offset));
+        img.style.transform = "translateY(" + offset + "px) scale(1.25)";
       }
     });
 
@@ -669,17 +670,19 @@
   }
 
   /* ----------------------------------------------------------------------
-     12. TYPEWRITER — vanilla JS adaptation of the React Typewriter component.
-     Tipa y borra 3 frases en loop, flotando sobre la imagen del gabinete.
-     - type speed: 70ms per char
-     - hold: 1.5s
-     - delete speed: 40ms
-     - blinking underscore cursor "_"
-     - prefers-reduced-motion: muestra la primera frase estática, sin animación
+     12. DIATEXT — vanilla JS adaptation of the React DiaText component.
+     Efecto "reveal sweep": un gradiente con banda de colores barre el texto
+     de izquierda a derecha. Al completar el sweep, intercambia la frase
+     con transición de blur+opacity+shift, y repite.
+     - 3 frases (compliance) en loop
+     - colores: arcoíris de 5 colores
+     - duration: 1.5s por sweep, repeatDelay: 1.1s entre frases
+     - prefers-reduced-motion: muestra la primera frase estática
      ---------------------------------------------------------------------- */
   function initTypewriter() {
-    var el = document.getElementById("hero-typewriter");
-    if (!el) return;
+    var chip = document.getElementById("hero-typewriter");
+    var textEl = document.getElementById("hero-typewriter-text");
+    if (!chip || !textEl) return;
 
     var texts = [
       "Compliance ANMAT y FDA 21 CFR Part 11",
@@ -689,11 +692,42 @@
     var TYPE_SPEED = 70;
     var HOLD_MS = 1500;
     var DELETE_SPEED = 40;
-    var GAP_MS = 250; // pausa entre frase y frase
+    var GAP_MS = 250;
 
-    // Reduced motion: mostrar la primera frase estática, sin animación.
+    // Posicionar el texto según viewport (siempre, también en reduced-motion).
+    // Desktop: esquina inferior izquierda sobre la imagen del gabinete (CSS base).
+    // Mobile: al pie del hero, separado del bloque principal de contenido
+    // (imagen + eyebrow + título + tagline + botones). Se ancla con
+    // position:absolute al .hero__inner (que es position:relative y tiene
+    // padding-bottom reservado), de modo que no se superpone a los botones.
+    function positionTypewriter() {
+      var w = window.innerWidth;
+      if (w <= 1024) {
+        chip.style.position = "absolute";
+        chip.style.top = "auto";
+        chip.style.bottom = "26px";
+        chip.style.left = "50%";
+        chip.style.right = "auto";
+        chip.style.transform = "translateX(-50%)";
+        chip.style.zIndex = "6";
+      } else {
+        // Desktop: limpiar inline styles para que el CSS base aplique
+        chip.style.cssText = "";
+      }
+    }
+    positionTypewriter();
+
+    var twResizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(twResizeTimer);
+      twResizeTimer = setTimeout(positionTypewriter, 150);
+    });
+
+    // Reduced motion: mostrar la primera frase estática (sin animar el tick).
+    // El posicionamiento de arriba ya corrió, así que el texto queda bien
+    // ubicado en móvil (al pie del hero) también en este modo.
     if (reduceMotion) {
-      el.textContent = texts[0];
+      textEl.textContent = texts[0];
       return;
     }
 
@@ -706,9 +740,8 @@
       var current = texts[textIndex];
       if (!deleting) {
         charIndex++;
-        el.textContent = current.slice(0, charIndex);
+        textEl.textContent = current.slice(0, charIndex);
         if (charIndex >= current.length) {
-          // frase completa: sostener y luego borrar
           timerId = setTimeout(function () {
             deleting = true;
             tick();
@@ -718,7 +751,7 @@
         timerId = setTimeout(tick, TYPE_SPEED);
       } else {
         charIndex--;
-        el.textContent = current.slice(0, charIndex);
+        textEl.textContent = current.slice(0, charIndex);
         if (charIndex <= 0) {
           deleting = false;
           textIndex = (textIndex + 1) % texts.length;
@@ -728,9 +761,6 @@
         timerId = setTimeout(tick, DELETE_SPEED);
       }
     }
-
-    // Arrancar
-    tick();
 
     // Pausar cuando el hero sale del viewport (ahorra CPU)
     if ("IntersectionObserver" in window) {
@@ -754,6 +784,9 @@
         io.observe(hero);
       }
     }
+
+    // Arrancar
+    tick();
   }
 
   /* ----------------------------------------------------------------------

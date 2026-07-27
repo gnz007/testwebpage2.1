@@ -126,24 +126,11 @@
 
       <!-- Cluster derecho: theme toggle + CTA (desktop) + hamburger (mobile) -->
       <div class="nav__actions">
-        <!-- Toggle de modo claro/oscuro -->
-        <button
-          type="button"
-          class="theme-toggle"
-          id="theme-toggle"
-          aria-label="Activar modo oscuro"
-          title="Modo oscuro"
-        >
-          <!-- Moon icon — visible en light mode -->
-          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-          <!-- Sun icon — visible en dark mode -->
-          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-          </svg>
-        </button>
+        <!-- Toggle de modo claro/oscuro — switch deslizante con sun/moon (Uiverse) -->
+        <label class="switch" id="theme-toggle" title="Cambiar modo claro/oscuro">
+          <input type="checkbox" id="theme-toggle-checkbox" aria-label="Activar modo oscuro" />
+          <span class="slider"></span>
+        </label>
 
         <!-- CTA principal — desktop only -->
         <a href="#contacto" class="btn btn--primary nav__cta">Solicitar demo</a>
@@ -281,10 +268,11 @@
             height="768"
             fetchpriority="high"
           />
-          <!-- Typewriter flotante sobre la imagen del gabinete (MOD 2).
+          <!-- Typewriter flotante sobre la imagen del gabinete.
+               Tipa y borra 3 frases en loop. Sin recuadro, solo texto.
                Se inicializa desde script.js (initTypewriter). -->
-          <div class="hero__typewriter reveal" data-delay="4" aria-live="polite">
-            <span class="hero__typewriter-text" id="hero-typewriter"></span><span class="hero__typewriter-cursor" aria-hidden="true">_</span>
+          <div class="hero__typewriter reveal" id="hero-typewriter" data-delay="4" aria-live="polite">
+            <span class="hero__typewriter-text" id="hero-typewriter-text" role="text"></span><span class="hero__typewriter-cursor" aria-hidden="true">_</span>
           </div>
         </div>
       </div>
@@ -549,9 +537,6 @@
           Conectividad WiFi y 4G mantiene alertas en vivo. Siempre sabés qué entra y qué sale,
           sin demoras, sin ítems perdidos. Control directo, sin complicaciones.
         </p>
-        <div class="dark-band__actions reveal" data-delay="3">
-          <a href="#contacto" class="btn btn--light">Solicitar demo</a>
-        </div>
       </div>
     </section>
 
@@ -657,23 +642,23 @@
             </p>
           </div>
 
-          <!-- MAIN — Start a project (izq) + Contact form (der) -->
+          <!-- MAIN — Transformá tu gestión médica (izq) + Contact form (der) -->
           <div class="contact-card__main">
             <div class="contact-card__left">
               <p class="contact-card__eyebrow">Hablemos</p>
-              <h2 class="contact-card__heading">Start a project</h2>
+              <h2 class="contact-card__heading">Transformá tu gestión médica</h2>
               <ul class="contact-card__checklist">
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
-                  Senior engineers on every engagement
+                  Ingeniería especializada en cada implementación
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
-                  Transparent demos — sin sorpresas
+                  Demos transparentes, sin sorpresas
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
-                  Security &amp; accessibility first (WCAG 2.1 AA)
+                  Seguridad y accesibilidad desde el diseño (WCAG 2.1 AA)
                 </li>
               </ul>
               <div class="contact-card__contact-info">
