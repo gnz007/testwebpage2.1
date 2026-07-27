@@ -17,11 +17,14 @@
    1. TOKENS — Light mode (default)
    ========================================================================== */
 :root {
-  /* Colors — Apple-inspired light mode */
+  /* Colors — Apple-inspired light mode con contraste tonal entre secciones.
+     Antes --canvas-elevated era #f4f8fb (casi idéntico a --canvas).
+     Ahora es #e8e8ec (gris ligeramente más oscuro) para que las secciones
+     elevated se distingan visualmente de las base, igual que en dark mode. */
   --canvas: #f5f5f7;
-  --canvas-elevated: #f4f8fb;
+  --canvas-elevated: #e8e8ec;
   --surface: #ffffff;
-  --surface-hover: #f5f5f7;
+  --surface-hover: #f0f0f2;
   --pebble: #e2e2e5;
   --apple-blue: #0071e3;
   --apple-blue-hover: #0077ed;
@@ -334,6 +337,211 @@ p { text-wrap: pretty; }
 
 .nav__actions { display: flex; align-items: center; gap: 12px; }
 .nav__cta { padding: 8px 18px; font-size: 14px; }
+
+/* Hamburger button (mobile only). 3 líneas que se animan a "X" al abrir. */
+.nav__hamburger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+  transition: background-color 200ms var(--ease), border-color 200ms var(--ease);
+}
+.nav__hamburger:hover { background: var(--surface-hover); border-color: var(--mist); }
+.nav__hamburger-line {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 300ms var(--ease), opacity 200ms var(--ease);
+}
+/* Estado "X" cuando el menú está abierto */
+.nav__hamburger.is-open .nav__hamburger-line:nth-child(1) {
+  transform: translateY(5.5px) rotate(45deg);
+}
+.nav__hamburger.is-open .nav__hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+.nav__hamburger.is-open .nav__hamburger-line:nth-child(3) {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+/* ==========================================================================
+   8b. PROGRESSIVE BLUR (MOD 9) — fixed div at top with multiple layers.
+   Crea un blur progresivo sutil siempre presente en el borde superior.
+   El nav frosted glass se suma encima al hacer scroll.
+   ========================================================================== */
+.nav-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: 99;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+}
+.nav-blur__layer {
+  flex: 1;
+  width: 100%;
+}
+.nav-blur__layer--1 {
+  /* Capa superior: blur más fuerte, muy translúcida */
+  backdrop-filter: blur(6px) saturate(140%);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 40%, transparent) 0%, transparent 100%);
+}
+.nav-blur__layer--2 {
+  /* Capa inferior: blur más suave, fade-out */
+  backdrop-filter: blur(2px) saturate(120%);
+  -webkit-backdrop-filter: blur(2px) saturate(120%);
+  background: linear-gradient(180deg, transparent 0%, transparent 100%);
+}
+/* En dark mode el blur es un poco más visible para legibilidad del nav */
+[data-theme="dark"] .nav-blur__layer--1 {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 55%, transparent) 0%, transparent 100%);
+}
+
+/* ==========================================================================
+   8c. MOBILE MENU (MOD 9) — slide-in panel from right with backdrop.
+   Panel lateral derecho con overlay. Colors match page (use --canvas,
+   --surface, --ink, --apple-blue). Soporta dark mode via CSS variables.
+   ========================================================================== */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(85vw, 360px);
+  background: var(--canvas);
+  color: var(--ink);
+  z-index: 220;
+  transform: translateX(100%);
+  transition: transform 350ms var(--ease);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -20px 0 50px -20px rgba(0, 0, 0, 0.25);
+  border-left: 1px solid var(--hairline);
+  /* Solo visible en mobile; en desktop se mantiene oculto */
+  visibility: hidden;
+}
+.mobile-menu.is-open {
+  transform: translateX(0);
+  visibility: visible;
+}
+.mobile-menu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--hairline);
+  min-height: 60px;
+}
+.mobile-menu__logo {
+  display: flex;
+  align-items: center;
+}
+.mobile-menu__logo img { height: 26px; width: auto; }
+.mobile-menu__close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease), border-color 200ms var(--ease);
+}
+.mobile-menu__close:hover { background: var(--surface-hover); border-color: var(--mist); }
+.mobile-menu__close svg { width: 16px; height: 16px; }
+.mobile-menu__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 2px;
+  overflow-y: auto;
+}
+.mobile-menu__link {
+  display: block;
+  padding: 14px 16px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background-color 200ms var(--ease), color 200ms var(--ease);
+  letter-spacing: -0.01em;
+}
+.mobile-menu__link:hover,
+.mobile-menu__link:active {
+  background: var(--surface-hover);
+  color: var(--apple-blue);
+}
+.mobile-menu__link--active { color: var(--apple-blue); background: color-mix(in srgb, var(--apple-blue) 8%, transparent); }
+.mobile-menu__actions {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--hairline);
+}
+.mobile-menu__cta {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 16px;
+  justify-content: center;
+}
+.mobile-menu__footer {
+  padding: 0 20px 16px;
+  font-family: var(--font-text);
+  font-size: 11px;
+  color: var(--ash);
+}
+
+/* Backdrop overlay */
+.mobile-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms var(--ease), visibility 300ms var(--ease);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.mobile-menu-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Reduced motion: sin animación de slide */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu,
+  .mobile-menu-backdrop { transition: none; }
+}
+
+/* Mobile breakpoint: mostrar hamburger, ocultar nav__links y nav__cta.
+   Usamos .nav__actions .nav__cta para mayor especificidad (otherwise
+   .btn { display: inline-flex } en sección 10 sobreescribiría el none). */
+@media (max-width: 768px) {
+  .nav__hamburger { display: flex; }
+  .nav__actions .nav__cta { display: none; }
+  /* En mobile el nav__links del header no se muestra; se usa el slide-in */
+  .nav__links { display: none; }
+}
 
 /* ==========================================================================
    9. THEME TOGGLE
@@ -671,6 +879,49 @@ p { text-wrap: pretty; }
 }
 
 /* ==========================================================================
+   11b. TYPEWRITER — texto que se escribe/deletes en loop sobre la imagen
+   del gabinete. Adaptación vanilla JS del componente React Typewriter.
+   Position: absolute, bottom-right del hero image, con efecto glass.
+   ========================================================================== */
+.hero__typewriter {
+  position: absolute;
+  z-index: 4;
+  bottom: 18px;
+  right: 18px;
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--onyx) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 6px 22px -8px rgba(0, 0, 0, 0.45);
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 1.4;
+  color: #ffffff;
+  letter-spacing: var(--track-caption);
+  pointer-events: none;
+  /* En desktop el chip se muestra a la derecha; en mobile se reposiciona
+     vía media query más abajo. */
+}
+.hero__typewriter-text { white-space: pre-wrap; word-break: break-word; }
+.hero__typewriter-cursor {
+  display: inline-block;
+  margin-left: 1px;
+  color: var(--signal-blue);
+  font-weight: 600;
+  animation: hero-tw-blink 1s steps(2, start) infinite;
+}
+@keyframes hero-tw-blink {
+  to { opacity: 0; }
+}
+/* Cursor quieto cuando el documento prefiere reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero__typewriter-cursor { animation: none; opacity: 0.85; }
+}
+
+/* ==========================================================================
    12. CASE STUDY — narrative with single hero number
    ========================================================================== */
 .case-study {
@@ -678,8 +929,8 @@ p { text-wrap: pretty; }
   grid-template-columns: 1fr 1.5fr;
   gap: 48px;
   align-items: center;
-  /* Reducido (era 48px) para menos espacio entre el caso y las métricas. */
-  margin-bottom: 28px;
+  /* Reducido (era 28px) para menos espacio entre el caso y las métricas. */
+  margin-bottom: 16px;
 }
 .case-study__stat { text-align: center; }
 .case-study__number {
@@ -697,7 +948,8 @@ p { text-wrap: pretty; }
   font-weight: 400;
   color: var(--ash);
   letter-spacing: var(--track-caption);
-  margin-top: 12px;
+  /* Reducido (era 12px) para menos espacio entre el número y su label. */
+  margin-top: 6px;
   max-width: 240px;
   margin-left: auto;
   margin-right: auto;
@@ -814,6 +1066,20 @@ p { text-wrap: pretty; }
   line-height: 1.5;
 }
 .bento__desc--light { color: rgba(255, 255, 255, 0.85); max-width: 480px; }
+
+/* MOD 5 — spec value grande (estilo número hero) dentro de bento__overlay.
+   Se usa en las 6 tiles de especificaciones migradas al carrusel de
+   Características. Color blanco para contraste sobre overlay oscuro. */
+.bento__spec-value {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
 
 /* ==========================================================================
    15. SPECS — cards with large display values
@@ -1222,6 +1488,348 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
 .footer__legal { display: flex; gap: 24px; }
 
 /* ==========================================================================
+   19b. CONTACT CARD + FOOTER BAR (MOD 8 — Relay Dev Studio redesign)
+   Sección de contacto + footer unificados en una sola dark card rounded-3xl.
+   Usa --onyx (bg-neutral-900) como fondo y --apple-blue como accent.
+   ========================================================================== */
+.contact-section {
+  /* padding-top menor para que la dark card pegue visualmente con la sección
+     anterior; padding-bottom reducido porque el footer-bar va dentro. */
+  padding-top: clamp(48px, 7vh, 80px);
+  padding-bottom: 0;
+}
+.contact-card {
+  position: relative;
+  background: var(--onyx);
+  color: var(--on-onyx);
+  border-radius: 28px;
+  padding: clamp(32px, 4vw, 56px);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.4);
+}
+/* En dark mode el onyx es aún más oscuro (#1a1a1d) y la card se distingue
+   del canvas (#2a2a2e). En light mode el onyx es #1d1d1f (casi negro) y
+   contrasta fuertemente con el canvas #f5f5f7. */
+
+/* Glow blobs decorativos (azul + ámbar) en esquinas */
+.contact-card__glow {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+.contact-card__glow--blue {
+  top: -120px;
+  right: -120px;
+  background: radial-gradient(circle, var(--apple-blue), transparent 70%);
+}
+.contact-card__glow--amber {
+  bottom: -120px;
+  left: -100px;
+  background: radial-gradient(circle, #f59e0b, transparent 70%);
+  opacity: 0.22;
+}
+/* En dark mode los glows son más sutiles (la card ya es oscura) */
+[data-theme="dark"] .contact-card__glow { opacity: 0.28; }
+[data-theme="dark"] .contact-card__glow--amber { opacity: 0.18; }
+
+/* TOP — logo + descripción */
+.contact-card__top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.contact-card__logo {
+  display: inline-flex;
+  align-items: center;
+}
+.contact-card__logo img {
+  height: 36px;
+  width: auto;
+  /* Invertir el logo (original es oscuro sobre claro) para que se vea blanco
+     sobre el fondo oscuro de la card. */
+  filter: brightness(0) invert(1);
+}
+.contact-card__desc {
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.5;
+  max-width: 480px;
+  margin: 0;
+}
+
+/* MAIN — Start a project (izq) + form (der) */
+.contact-card__main {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 48px;
+  padding: 48px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.contact-card__left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.contact-card__eyebrow {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--signal-blue);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.contact-card__heading {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0;
+}
+.contact-card__checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+.contact-card__checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: var(--font-text);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.45;
+}
+.contact-card__checklist svg {
+  width: 18px;
+  height: 18px;
+  color: var(--signal-blue);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.contact-card__contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.contact-card__contact-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #ffffff;
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 200ms var(--ease);
+}
+.contact-card__contact-link:hover { color: var(--signal-blue); }
+.contact-card__contact-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.contact-card__contact-static {
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+/* Form overrides — inputs sobre la dark card */
+.contact-card__right { display: flex; flex-direction: column; }
+.contact-card .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.contact-card .form-field--full { grid-column: 1 / -1; margin-top: 16px; }
+.contact-card .form-field__label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+.contact-card .form-field__input {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 15px;
+}
+.contact-card .form-field__input:focus {
+  border-color: var(--apple-blue);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+.contact-card .form-field__input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.contact-card .form-field--error .form-field__input {
+  border-color: #ff6a6a;
+  box-shadow: 0 0 0 3px rgba(255, 106, 106, 0.18);
+}
+.contact-card .form-field__error { color: #ff9a9a; font-size: 12px; }
+.contact-card .form-submit { text-align: left; margin-top: 24px; }
+.contact-card .form-success--in-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+}
+.contact-card .form-success__icon { color: var(--signal-blue); }
+.contact-card .form-success__title { color: #ffffff; }
+.contact-card .form-success__body { color: rgba(255, 255, 255, 0.75); }
+
+/* BOTTOM — link columns + newsletter */
+.contact-card__bottom {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  padding-top: 40px;
+}
+.contact-card__col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contact-card__col-heading {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.contact-card__link {
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  transition: color 200ms var(--ease);
+  line-height: 1.5;
+}
+.contact-card__link:hover { color: #ffffff; }
+.contact-card__col--newsletter { grid-column: span 1; }
+.contact-card__newsletter-desc {
+  font-family: var(--font-text);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.newsletter-form {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 980px;
+  padding: 4px 4px 4px 14px;
+  align-items: center;
+}
+.newsletter-form__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: var(--font-text);
+  font-size: 13px;
+  padding: 6px 0;
+  min-width: 0;
+}
+.newsletter-form__input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.newsletter-form__btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--apple-blue);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease), transform 200ms var(--ease);
+}
+.newsletter-form__btn:hover { background: var(--apple-blue-hover); transform: scale(1.06); }
+.newsletter-form__btn svg { width: 14px; height: 14px; }
+
+/* FOOTER BAR — copyright + legal + back to top */
+.footer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 22px 36px;
+  font-family: var(--font-text);
+  font-size: 12px;
+  color: var(--ash);
+}
+.footer-bar__copy { margin: 0; }
+.footer-bar__legal {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.footer-bar__link {
+  color: var(--ash);
+  text-decoration: none;
+  transition: color 200ms var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.footer-bar__link:hover { color: var(--ink); }
+.footer-bar__link--top svg { width: 13px; height: 13px; }
+
+/* Responsive: contact card en móvil */
+@media (max-width: 1024px) {
+  .contact-card__main {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 32px 0;
+  }
+  .contact-card .form-grid { grid-template-columns: 1fr; }
+  .contact-card__bottom {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+}
+@media (max-width: 600px) {
+  .contact-card__top { flex-direction: column; align-items: flex-start; }
+  .contact-card__desc { max-width: 100%; }
+  .contact-card__bottom { grid-template-columns: 1fr; }
+  .footer-bar { flex-direction: column; align-items: flex-start; }
+  .footer-bar__legal { flex-wrap: wrap; }
+}
+
+/* ==========================================================================
    20. SCROLL REVEAL — progressive enhancement
    Content visible by default. Hidden only when JS adds .js class to <html>.
    ========================================================================== */
@@ -1290,6 +1898,99 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
   /* Imagen del gabinete más chica en móvil para que el primer vistazo
      incluya los botones (antes era 400px). */
   .hero__img { max-width: 300px; }
+
+  /* === MOD 1: Mobile hero — text overlay on cabinet image ===
+     En móvil el contenido (título, tagline, botones) se superpone a la
+     imagen del gabinete en lugar de apilarse debajo. .hero__visual pasa
+     a ser el contenedor relativo, .hero__content se posiciona absoluto
+     encima con un gradient scrim para legibilidad. El typewriter (MOD 2)
+     también flota sobre la imagen. Desktop: layout side-by-side sin cambios. */
+  .hero__inner {
+    position: relative;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    gap: 0;
+    min-height: min(86vh, 720px);
+    padding: 0;
+  }
+  .hero__visual {
+    order: 0;
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    min-height: min(86vh, 720px);
+    overflow: hidden;
+    border-radius: 0;
+  }
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center 30%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .hero__content {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    max-width: 100%;
+    margin: 0;
+    padding: 96px 22px 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* Gradient scrim para legibilidad del texto blanco sobre la imagen */
+    background:
+      linear-gradient(180deg,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.18) 38%,
+        rgba(0,0,0,0.18) 60%,
+        rgba(0,0,0,0.68) 100%);
+  }
+  .hero__eyebrow,
+  .hero__title,
+  .hero__tagline {
+    color: #ffffff;
+  }
+  .hero__eyebrow { color: rgba(255,255,255,0.85); }
+  .hero__tagline { color: rgba(255,255,255,0.92); }
+  .hero__title { text-shadow: 0 2px 18px rgba(0,0,0,0.35); }
+  /* El btn--outline se invierte a estilo "light" para legibilidad sobre la imagen */
+  .hero__actions .btn--outline {
+    background: rgba(255,255,255,0.10);
+    color: #ffffff;
+    border-color: rgba(255,255,255,0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .hero__actions .btn--outline:hover { background: rgba(255,255,255,0.18); }
+  /* Typewriter en mobile: full-width chip en la parte inferior de la imagen */
+  .hero__typewriter {
+    bottom: 24px;
+    left: 14px;
+    right: 14px;
+    max-width: none;
+    width: auto;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  /* === MOD 4: Center quote on mobile === */
+  .case-study__quote,
+  .case-study__story,
+  .case-study__attribution {
+    text-align: center;
+  }
+  .case-study__story {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1333,7 +2034,9 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
    ========================================================================== */
 @media print {
   .nav, .scroll-progress, .skip-link, .theme-toggle, .dark-band__img,
-  .hero__bg-video, .hero__bg-poster, .hero__scrim, .hero__mesh { display: none; }
+  .hero__bg-video, .hero__bg-poster, .hero__scrim, .hero__mesh,
+  .nav-blur, .nav__hamburger, .mobile-menu, .mobile-menu-backdrop,
+  .hero__typewriter { display: none !important; }
   body { background: #fff; color: #000; }
   .hero { background: #fff; }
   .dark-band { background: #fff; color: #000; }

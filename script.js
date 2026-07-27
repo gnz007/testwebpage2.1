@@ -669,6 +669,207 @@
   }
 
   /* ----------------------------------------------------------------------
+     12. TYPEWRITER — vanilla JS adaptation of the React Typewriter component.
+     Tipa y borra 3 frases en loop, flotando sobre la imagen del gabinete.
+     - type speed: 70ms per char
+     - hold: 1.5s
+     - delete speed: 40ms
+     - blinking underscore cursor "_"
+     - prefers-reduced-motion: muestra la primera frase estática, sin animación
+     ---------------------------------------------------------------------- */
+  function initTypewriter() {
+    var el = document.getElementById("hero-typewriter");
+    if (!el) return;
+
+    var texts = [
+      "Compliance ANMAT y FDA 21 CFR Part 11",
+      "Pantalla táctil HD 21.5″ (Windows / Android)",
+      "Acceso por RFID, huella o reconocimiento facial"
+    ];
+    var TYPE_SPEED = 70;
+    var HOLD_MS = 1500;
+    var DELETE_SPEED = 40;
+    var GAP_MS = 250; // pausa entre frase y frase
+
+    // Reduced motion: mostrar la primera frase estática, sin animación.
+    if (reduceMotion) {
+      el.textContent = texts[0];
+      return;
+    }
+
+    var textIndex = 0;
+    var charIndex = 0;
+    var deleting = false;
+    var timerId = null;
+
+    function tick() {
+      var current = texts[textIndex];
+      if (!deleting) {
+        charIndex++;
+        el.textContent = current.slice(0, charIndex);
+        if (charIndex >= current.length) {
+          // frase completa: sostener y luego borrar
+          timerId = setTimeout(function () {
+            deleting = true;
+            tick();
+          }, HOLD_MS);
+          return;
+        }
+        timerId = setTimeout(tick, TYPE_SPEED);
+      } else {
+        charIndex--;
+        el.textContent = current.slice(0, charIndex);
+        if (charIndex <= 0) {
+          deleting = false;
+          textIndex = (textIndex + 1) % texts.length;
+          timerId = setTimeout(tick, GAP_MS);
+          return;
+        }
+        timerId = setTimeout(tick, DELETE_SPEED);
+      }
+    }
+
+    // Arrancar
+    tick();
+
+    // Pausar cuando el hero sale del viewport (ahorra CPU)
+    if ("IntersectionObserver" in window) {
+      var hero = document.querySelector(".hero");
+      if (hero) {
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                if (!timerId && charIndex >= 0) tick();
+              } else {
+                if (timerId) {
+                  clearTimeout(timerId);
+                  timerId = null;
+                }
+              }
+            });
+          },
+          { threshold: 0.05 }
+        );
+        io.observe(hero);
+      }
+    }
+  }
+
+  /* ----------------------------------------------------------------------
+     13. MOBILE MENU — slide-in panel from right (MOD 9).
+     - Toggle hamburger button (animación a "X" al abrir)
+     - Backdrop overlay clickeable para cerrar
+     - Cerrar con tecla Escape
+     - Cerrar al clickear cualquier link del menú (smooth scroll)
+     - Bloquear scroll del body cuando el menú está abierto
+     - Aria attributes: aria-expanded en hamburger, aria-hidden en menu/backdrop
+     - Sincronizar link activo con scrollspy existente
+     ---------------------------------------------------------------------- */
+  function initMobileMenu() {
+    var hamburger = document.getElementById("nav-hamburger");
+    var menu = document.getElementById("mobile-menu");
+    var backdrop = document.getElementById("mobile-menu-backdrop");
+    var closeBtn = document.getElementById("mobile-menu-close");
+    if (!hamburger || !menu || !backdrop || !closeBtn) return;
+
+    var menuLinks = menu.querySelectorAll(".mobile-menu__link, .mobile-menu__cta");
+    var lastFocusedEl = null;
+    var isOpen = false;
+
+    function open() {
+      if (isOpen) return;
+      isOpen = true;
+      menu.classList.add("is-open");
+      backdrop.classList.add("is-open");
+      hamburger.classList.add("is-open");
+      hamburger.setAttribute("aria-expanded", "true");
+      menu.setAttribute("aria-hidden", "false");
+      backdrop.setAttribute("aria-hidden", "false");
+      // Bloquear scroll del body
+      document.body.style.overflow = "hidden";
+      // Guardar foco y moverlo al primer link del menú
+      lastFocusedEl = document.activeElement;
+      var firstLink = menu.querySelector(".mobile-menu__link, .mobile-menu__close");
+      if (firstLink) firstLink.focus();
+    }
+
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      menu.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+      hamburger.classList.remove("is-open");
+      hamburger.setAttribute("aria-expanded", "false");
+      menu.setAttribute("aria-hidden", "true");
+      backdrop.setAttribute("aria-hidden", "true");
+      // Restaurar scroll del body
+      document.body.style.overflow = "";
+      // Devolver foco al hamburger
+      if (lastFocusedEl) lastFocusedEl.focus();
+    }
+
+    function toggle() {
+      if (isOpen) close(); else open();
+    }
+
+    hamburger.addEventListener("click", toggle);
+    closeBtn.addEventListener("click", close);
+    backdrop.addEventListener("click", close);
+
+    // Cerrar al clickear cualquier link dentro del menú (smooth scroll)
+    menuLinks.forEach(function (link) {
+      link.addEventListener("click", function () {
+        // Pequeño delay para que el smooth scroll arranque antes de cerrar
+        setTimeout(close, 60);
+      });
+    });
+
+    // Cerrar con Escape
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && isOpen) {
+        close();
+      }
+    });
+
+    // Cerrar al pasar a desktop (resize > 768)
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (window.innerWidth > 768 && isOpen) {
+          close();
+        }
+      }, 150);
+    });
+
+    // Scrollspy sync: marcar el link activo del menú móvil según la sección visible
+    // (reutiliza el observer de initScrollSpy observando los mismos section[id]).
+    if ("IntersectionObserver" in window) {
+      var sections = document.querySelectorAll("section[id]");
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              var id = entry.target.getAttribute("id");
+              menuLinks.forEach(function (link) {
+                var href = link.getAttribute("href");
+                if (href === "#" + id) {
+                  link.classList.add("mobile-menu__link--active");
+                } else {
+                  link.classList.remove("mobile-menu__link--active");
+                }
+              });
+            }
+          });
+        },
+        { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+      );
+      sections.forEach(function (sec) { observer.observe(sec); });
+    }
+  }
+
+  /* ----------------------------------------------------------------------
      INIT
      ---------------------------------------------------------------------- */
   function init() {
@@ -683,6 +884,8 @@
     initSmoothScroll();
     initHeroVideo();
     initCarousels();
+    initTypewriter();
+    initMobileMenu();
   }
 
   if (document.readyState === "loading") {
