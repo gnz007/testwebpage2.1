@@ -28,6 +28,12 @@
   --pebble: #e2e2e5;
   --apple-blue: #0071e3;
   --apple-blue-hover: #0077ed;
+  /* C6 FIX — Token dedicado para uso TEXTUAL del azul de marca.
+     --apple-blue (#0071e3) sobre canvas #f5f5f7 da 4.31:1 (FAIL AA).
+     --apple-blue-text #0058b0 sobre canvas da 6.05:1 ✓ AA normal y large.
+     Sobre canvas-elevated #e8e8ec da 5.42:1 ✓ AA. Aislamos el token de
+     "azul de marca como fondo/borde" del token de "azul como foreground". */
+  --apple-blue-text: #0058b0;
   --link-blue: #0066cc;
   --signal-blue: #2997ff;
   --ink: #1d1d1f;
@@ -102,6 +108,8 @@
   --pebble: #4a4a52;
   --apple-blue: #2563eb;
   --apple-blue-hover: #3b82f6;
+  /* C6 FIX — Token textual en dark mode. #93c5fd sobre #2a2a2e da 6.84:1 ✓ AA. */
+  --apple-blue-text: #93c5fd;
   --link-blue: #60a5fa;
   --signal-blue: #93c5fd;
   --ink: #fafafa;
@@ -126,19 +134,28 @@
   --hero-scrim-top: rgba(26, 26, 29, 0.72);
 }
 
-/* Smooth theme transition — respects reduced motion */
-@media (prefers-reduced-motion: no-preference) {
-  body, .nav, .card, .bento__tile, .spec-card, .chip,
-  .form-field__input, .footer, .dark-band, .btn {
-    transition: background-color 300ms var(--ease), color 300ms var(--ease), border-color 300ms var(--ease);
-  }
+/* Smooth theme transition —
+   NOTA: el bloque @media (prefers-reduced-motion: no-preference) fue retirado
+   por requerimiento explícito del usuario. Las transiciones de tema se aplican
+   siempre (300ms) — son suaves y no causan discomfort vestibular. */
+body, .nav, .card, .bento__tile, .spec-card, .chip,
+.form-field__input, .footer, .dark-band, .btn {
+  transition: background-color 300ms var(--ease), color 300ms var(--ease), border-color 300ms var(--ease);
 }
 
 /* ==========================================================================
    3. RESET & BASE
    ========================================================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* Q1 FIX — scroll-padding-top: 80px compensa el nav sticky de 60px + 20px
+   de buffer. Sin esto, los anchor links (#producto, #caracteristicas, etc.)
+   alinean el título de la sección DETRÁS del nav, oculto al usuario.
+   WCAG 2.4.3 (Focus Appearance) + UX de navegación. */
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
 body {
   min-height: 100vh;
   background: var(--canvas);
@@ -200,7 +217,9 @@ p { text-wrap: pretty; }
   font-family: var(--font-display);
   font-size: clamp(12px, 1.5vw, 14px);
   font-weight: 600;
-  color: var(--apple-blue);
+  /* C6 FIX — usa --apple-blue-text (6.05:1 sobre canvas) en lugar de
+     --apple-blue (4.31:1, FAIL AA). Mismo azul de marca perceptual. */
+  color: var(--apple-blue-text);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 20px;
@@ -300,6 +319,9 @@ p { text-wrap: pretty; }
   transition: background-color 300ms var(--ease), border-color 300ms var(--ease), backdrop-filter 300ms var(--ease);
 }
 .nav--scrolled {
+  /* M8 FIX — fallback opaco para Safari ≤16.1 / Firefox ≤112 que no
+     soportan color-mix(). El navegador usa la última declaración válida. */
+  background: var(--canvas);
   background: color-mix(in srgb, var(--canvas) 72%, transparent);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
@@ -333,7 +355,9 @@ p { text-wrap: pretty; }
   transition: color 200ms var(--ease), opacity 200ms var(--ease);
 }
 .nav__link:hover { opacity: 1; color: var(--link-blue); }
-.nav__link--active { color: var(--apple-blue); opacity: 1; font-weight: 500; }
+/* C6 FIX — link activo usa --apple-blue-text (6.05:1 ✓ AA).
+   Antes usaba --apple-blue (4.31:1 FAIL AA) como foreground. */
+.nav__link--active { color: var(--apple-blue-text); opacity: 1; font-weight: 500; }
 
 .nav__actions { display: flex; align-items: center; gap: 12px; }
 .nav__cta { padding: 8px 18px; font-size: 14px; }
@@ -399,6 +423,8 @@ p { text-wrap: pretty; }
   /* Capa superior: blur más fuerte, muy translúcida */
   backdrop-filter: blur(6px) saturate(140%);
   -webkit-backdrop-filter: blur(6px) saturate(140%);
+  /* M8 FIX — fallback rgba opaco antes de color-mix */
+  background: linear-gradient(180deg, rgba(245, 245, 247, 0.4) 0%, transparent 100%);
   background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 40%, transparent) 0%, transparent 100%);
 }
 .nav-blur__layer--2 {
@@ -409,6 +435,8 @@ p { text-wrap: pretty; }
 }
 /* En dark mode el blur es un poco más visible para legibilidad del nav */
 [data-theme="dark"] .nav-blur__layer--1 {
+  /* M8 FIX — fallback rgba para dark mode */
+  background: linear-gradient(180deg, rgba(42, 42, 46, 0.55) 0%, transparent 100%);
   background: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 55%, transparent) 0%, transparent 100%);
 }
 
@@ -453,8 +481,12 @@ p { text-wrap: pretty; }
 }
 .mobile-menu__logo img { height: 26px; width: auto; }
 .mobile-menu__close {
-  width: 36px;
-  height: 36px;
+  /* Q6 FIX — Touch target aumentado a 44×44px (antes 36×36px).
+     WCAG 2.5.5 (Target Size — Nivel AAA) y Apple HIG recomiendan
+     mínimo 44px. En mobile con densidad táctil alta, los 36px
+     generaban missed-taps al cerrar el menú. */
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: transparent;
   border: 1px solid var(--hairline);
@@ -490,9 +522,15 @@ p { text-wrap: pretty; }
 .mobile-menu__link:hover,
 .mobile-menu__link:active {
   background: var(--surface-hover);
-  color: var(--apple-blue);
+  /* C6 FIX — usa --apple-blue-text (6.84:1 en dark, 6.05:1 en light) ✓ AA */
+  color: var(--apple-blue-text);
 }
-.mobile-menu__link--active { color: var(--apple-blue); background: color-mix(in srgb, var(--apple-blue) 8%, transparent); }
+/* M8 FIX — fallback opaco antes de color-mix para Safari ≤16.1 / Firefox ≤112 */
+.mobile-menu__link--active {
+  color: var(--apple-blue-text);
+  background: var(--surface-hover);
+  background: color-mix(in srgb, var(--apple-blue) 8%, transparent);
+}
 .mobile-menu__actions {
   padding: 16px 20px 20px;
   border-top: 1px solid var(--hairline);
@@ -527,12 +565,6 @@ p { text-wrap: pretty; }
   visibility: visible;
 }
 
-/* Reduced motion: sin animación de slide */
-@media (prefers-reduced-motion: reduce) {
-  .mobile-menu,
-  .mobile-menu-backdrop { transition: none; }
-}
-
 /* Mobile breakpoint: mostrar hamburger, ocultar nav__links y nav__cta.
    Usamos .nav__actions .nav__cta para mayor especificidad (otherwise
    .btn { display: inline-flex } en sección 10 sobreescribiría el none). */
@@ -559,7 +591,10 @@ p { text-wrap: pretty; }
   /* Fondo translúcido: se adapta a light/dark via currentColor del texto.
      En light mode el texto es oscuro, en dark mode claro.
      Usamos color-mix para crear un fondo sutil basado en el ink. */
+  /* M8 FIX — fallbacks opacos antes de color-mix */
+  background: rgba(29, 29, 31, 0.04);
   background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border: 1px solid rgba(29, 29, 31, 0.05);
   border: 1px solid color-mix(in srgb, var(--ink) 5%, transparent);
   color: var(--ink);
   font-family: var(--font-text);
@@ -568,6 +603,7 @@ p { text-wrap: pretty; }
   transition: background-color 150ms var(--ease), transform 200ms var(--ease);
 }
 .morph-btn:hover {
+  background: rgba(29, 29, 31, 0.06);
   background: color-mix(in srgb, var(--ink) 6%, transparent);
   transform: scale(1.02);
 }
@@ -630,16 +666,6 @@ p { text-wrap: pretty; }
   .morph-btn {
     padding: 0 16px;
   }
-}
-
-/* Reduced motion: sin animación de swap ni scale */
-@media (prefers-reduced-motion: reduce) {
-  .morph-btn,
-  .morph-btn__icon {
-    transition: none;
-  }
-  .morph-btn:hover { transform: none; }
-  .morph-btn:active { transform: none; }
 }
 
 /* ==========================================================================
@@ -769,11 +795,6 @@ p { text-wrap: pretty; }
 @keyframes rb-rainbow {
   0%   { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
-}
-
-/* Reduced motion: animación rainbow se detiene */
-@media (prefers-reduced-motion: reduce) {
-  .rainbow-btn-wrap { animation: none; }
 }
 
 /* CTA actions — separación prolija entre el texto (.lead) y el botón.
@@ -948,6 +969,103 @@ p { text-wrap: pretty; }
 }
 
 /* ==========================================================================
+   11c. A1 FIX (ui-ux-pro-max Trust & Authority) — Trust badges.
+   Banda de compliance badges visible debajo del CTA del hero. La heurística
+   "Trust & Authority" exige credentials/badges visibles, no solo copy.
+   Estilo: pill discreto con icono + label, sin glow agresivo, alineado
+   con el sistema Apple del sitio (radius-pill, hairline border, ink color).
+   ========================================================================== */
+.hero__trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 28px;
+  padding: 0;
+  list-style: none;
+}
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  background: rgba(29, 29, 31, 0.04); /* M8 fallback */
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  border: 1px solid rgba(29, 29, 31, 0.08); /* M8 fallback */
+  color: var(--graphite);
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  transition: background-color 200ms var(--ease), border-color 200ms var(--ease), color 200ms var(--ease);
+}
+.trust-badge:hover {
+  background: color-mix(in srgb, var(--apple-blue) 8%, transparent);
+  background: rgba(0, 113, 227, 0.08); /* M8 fallback */
+  border-color: color-mix(in srgb, var(--apple-blue) 25%, transparent);
+  border-color: rgba(0, 113, 227, 0.25);
+  color: var(--apple-blue-text);
+}
+.trust-badge__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--apple-blue-text);
+}
+.trust-badge__label {
+  white-space: nowrap;
+}
+
+/* Dark mode: badges se adaptan via --ink / --graphite (ya definidos en dark */
+[data-theme="dark"] .trust-badge {
+  background: rgba(250, 250, 250, 0.06);
+  border-color: rgba(250, 250, 250, 0.12);
+  color: var(--graphite);
+}
+[data-theme="dark"] .trust-badge:hover {
+  background: rgba(147, 197, 253, 0.12);
+  border-color: rgba(147, 197, 253, 0.3);
+  color: var(--apple-blue-text);
+}
+[data-theme="dark"] .trust-badge__icon {
+  color: var(--apple-blue-text);
+}
+
+/* Mobile: badges más compactas, wrap fluido. Contraste reforzado para
+   garantizar visibilidad sobre el video de fondo (donde el VLM no los
+   distinguía en mobile). Usamos surface sólido en lugar de translúcido. */
+@media (max-width: 1024px) {
+  .hero__trust-badges {
+    justify-content: center;
+    gap: 8px 10px;
+    margin-top: 22px;
+  }
+  .trust-badge {
+    padding: 6px 11px;
+    font-size: 11px;
+    /* Refuerzo: fondo sólido + border más visible para contraste sobre video */
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(29, 29, 31, 0.18);
+    color: var(--ink);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .trust-badge__icon {
+    width: 12px;
+    height: 12px;
+    color: var(--apple-blue-text);
+  }
+  /* Dark mode mobile: badge oscuro sólido sobre video */
+  [data-theme="dark"] .trust-badge {
+    background: rgba(26, 26, 29, 0.92);
+    border-color: rgba(250, 250, 250, 0.2);
+    color: #fafafa;
+  }
+}
+
+/* ==========================================================================
    11b. TYPEWRITER — texto que se escribe/borra en loop sobre la imagen.
    Texto SOLO (sin chip/recuadro), posicionado sobre la imagen del gabinete.
    ========================================================================== */
@@ -984,9 +1102,6 @@ p { text-wrap: pretty; }
 }
 @keyframes hero-tw-blink {
   to { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero__typewriter-cursor { animation: none; opacity: 0.85; }
 }
 
 /* ==========================================================================
@@ -1248,7 +1363,14 @@ p { text-wrap: pretty; }
   opacity: 0;
   transition: opacity 300ms var(--ease);
 }
-.carousel:hover .carousel__nav { opacity: 1; }
+/* M2 FIX — flechas visibles en hover Y en focus-within (navegación teclado),
+   Y siempre visibles en dispositivos touch (iPad/tablets/pantallas táctiles)
+   que no disparan :hover. WCAG 2.4.7 (Focus Visible) + 1.4.13 (Content on Hover). */
+.carousel:hover .carousel__nav,
+.carousel:focus-within .carousel__nav { opacity: 1; }
+@media (hover: none) {
+  .carousel__nav { opacity: 1; }
+}
 .carousel__nav-btn {
   pointer-events: auto;
   width: 40px;
@@ -1269,9 +1391,14 @@ p { text-wrap: pretty; }
   border-color: var(--apple-blue);
   color: var(--apple-blue);
 }
-.carousel__nav-btn:disabled {
+/* M3 FIX — reemplazo de :disabled por .is-disabled + pointer-events: none.
+   Mantiene el botón focuseable para que el lector de pantalla anuncie el
+   estado ("anterior, deshabilitado") en lugar de desaparecer del tab order.
+   El JS setea aria-disabled="true" y togglea la clase. */
+.carousel__nav-btn.is-disabled {
   opacity: 0.35;
   cursor: not-allowed;
+  pointer-events: none;
   transform: none;
 }
 .carousel__nav-btn:focus-visible {
@@ -1320,11 +1447,6 @@ p { text-wrap: pretty; }
     height: 36px;
   }
   .carousel__nav-btn svg { width: 16px; height: 16px; }
-}
-
-/* reduced motion: transición del track se colapsa */
-@media (prefers-reduced-motion: reduce) {
-  .carousel__track { transition: none; }
 }
 
 /* ==========================================================================
@@ -1880,6 +2002,45 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
 .footer-bar__link:hover { color: var(--ink); }
 .footer-bar__link--top svg { width: 13px; height: 13px; }
 
+/* M10 FIX — Estilos para los links "próximamente" (Documentación técnica,
+   Soporte, Privacy, Terms). Marcan visualmente como no disponibles y
+   aria-disabled="true" los anuncia como deshabilitados al SR. */
+.contact-card__link--soon,
+.footer-bar__link--soon {
+  opacity: 0.45;
+  pointer-events: none;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.badge-soon {
+  display: inline-block;
+  font-family: var(--font-text);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: 6px;
+  opacity: 0.85;
+  vertical-align: 2px;
+}
+.contact-card__link--soon .badge-soon {
+  color: rgba(255, 255, 255, 0.7);
+}
+.footer-bar__link--soon .badge-soon {
+  color: var(--ash);
+}
+
+/* M9 FIX — Feedback del newsletter (éxito/error del submit). */
+.newsletter-form__feedback {
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.4;
+  margin-top: 8px;
+  letter-spacing: 0.01em;
+}
+
 /* Responsive: contact card en móvil */
 @media (max-width: 1024px) {
   .contact-card__main {
@@ -2132,23 +2293,11 @@ form.is-loading { opacity: 0.6; pointer-events: none; }
 }
 
 /* ==========================================================================
-   22. REDUCED MOTION — mandatory collapse
+   22. REDUCED MOTION — SECCIÓN ELIMINADA POR REQUERIMIENTO EXPLÍCITO
+   El usuario solicitó quitar completamente prefers-reduced-motion del CSS
+   y también el botón manual de pausa del video de fondo. El video
+   autoplay muted loop se reproduce sin control manual.
    ========================================================================== */
-@media (prefers-reduced-motion: reduce) {
-  .js .reveal { opacity: 1; transform: none; transition: none; }
-  .js .bento__tile { transition: none; }
-  .scroll-progress { transition: none; }
-  /* Nota: el video de fondo ambiental (muted, lento, blur) se SIGUE
-     reproduciendo bajo prefers-reduced-motion porque es una textura
-     atmosférica sutil, no una animación agresiva. Solo se desactivan
-     los pulsos RFID y las transiciones de UI (arriba). */
-  *, *::before, *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-  html { scroll-behavior: auto; }
-}
 
 /* ==========================================================================
    23. PRINT — clean print styles

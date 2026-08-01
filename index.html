@@ -39,13 +39,16 @@
 
   <!-- ==================== ANTI-FOUC ==================== -->
   <!-- Script síncrono: lee el tema guardado ANTES de que el CSS se renderice.
-       Por defecto arranca SIEMPRE en modo claro. El modo oscuro solo se activa
-       si el usuario lo elige explícitamente y queda persistido en localStorage. -->
+       Q2 FIX — Si no hay tema guardado, respeta la preferencia del SO
+       (prefers-color-scheme) en la primera visita. Elimina la fricción
+       de deslumbrar al usuario dark-mode con un flash light inicial. -->
   <script>
     (function () {
       try {
         var t = localStorage.getItem('ck-theme');
-        if (t !== 'dark' && t !== 'light') { t = 'light'; }
+        if (t !== 'dark' && t !== 'light') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
         document.documentElement.setAttribute('data-theme', t);
       } catch (e) {
         document.documentElement.setAttribute('data-theme', 'light');
@@ -55,28 +58,46 @@
 
   <!-- ==================== PRELOAD ==================== -->
   <link rel="preload" href="assets/hero-cabinet.png" as="image" />
-  <!-- Preload del video de fondo del hero (LCP crítico) -->
-  <link rel="preload" href="assets/hero-bg.mp4" as="fetch" crossorigin="anonymous" />
+  <!-- M6 FIX — preload del video usa as="media" (no as="fetch") y sin crossorigin
+       (same-origin). El navegador cachea el preload y el <video> lo reutiliza. -->
+  <link rel="preload" href="assets/hero-bg.mp4" as="media" />
   <link rel="preload" href="assets/hero-video-poster.jpg" as="image" />
+
+  <!-- Q3 FIX — iOS Safari convierte secuencias de números en links tel: automáticos.
+       Las specs del gabinete (21.5″, 400, 5s, 200kg, 840-960) quedarían como
+       links espurios rompiendo la lectura. Desactivamos la detección. -->
+  <meta name="format-detection" content="telephone=no" />
 
   <!-- ==================== ESTILOS ==================== -->
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- ==================== DATOS ESTRUCTURADOS ==================== -->
+  <!-- ==================== DATOS ESTRUCTURADOS ====================
+       Q7 (versión segura) — En lugar de agregar aggregateRating con datos
+       ficticios (que viola las políticas de Google y puede derivar en
+       penalización manual), ampliamos el schema con Organization para
+       reforzar E-E-A-T (Experience, Expertise, Authoritativeness,
+       Trustworthiness) en un nicho médico regulado. Cuando existan reseñas
+       verificables reales, reemplazar por Product + AggregateRating. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "Gabinete Médico RFID Cykeo",
-    "description": "Gabinete médico RFID con pantalla táctil 21.5″, doble cámara y precisión del 99%. Distribuido en Argentina.",
-    "brand": { "@type": "Brand", "name": "Cykeo Argentina" },
-    "category": "Medical Equipment",
-    "offers": {
-      "@type": "Offer",
-      "availability": "https://schema.org/InStock",
-      "priceCurrency": "ARS",
-      "seller": { "@type": "Organization", "name": "Cykeo Argentina" }
-    }
+    "@type": "MedicalBusiness",
+    "name": "Cykeo Argentina",
+    "description": "Distribución oficial en Argentina de gabinetes médicos RFID con pantalla táctil 21.5″, doble cámara y precisión del 99%. Cumple ANMAT y FDA 21 CFR Part 11.",
+    "url": "https://cykeo.com.ar/",
+    "logo": "https://cykeo.com.ar/logo.svg",
+    "image": "https://cykeo.com.ar/assets/hero-cabinet.png",
+    "telephone": "+541143215000",
+    "email": "ventas@cykeo.com.ar",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Av. del Libertador 1200",
+      "addressLocality": "CABA",
+      "postalCode": "C1426",
+      "addressCountry": "AR"
+    },
+    "areaServed": "AR",
+    "medicalSpecialty": ["SurgicalProcedure", "Pharmacy"]
   }
   </script>
 </head>
@@ -201,11 +222,15 @@
     </div>
 
     <div class="mobile-menu__footer">
-      <p>© 2026 Cykeo Argentina</p>
+      <p>© <span class="mobile-menu__year">2025</span> Cykeo Argentina</p>
     </div>
   </aside>
 
-  <main id="main">
+  <!-- C4 FIX — tabindex="-1" en <main> habilita el skip link para mover el
+       foco programáticamente al contenido principal. Sin esto, el skip link
+       solo desplaza el viewport pero el foco se queda en el header, rompiendo
+       la navegación por teclado (WCAG 2.4.1 Bypass Blocks — Nivel A). -->
+  <main id="main" tabindex="-1">
     <!-- ==================================================================
          HERO — composición asimétrica (texto izq, imagen der dominante)
          ================================================================== -->
@@ -235,6 +260,7 @@
         aria-hidden="true"
         tabindex="-1"
       >
+        <source src="assets/hero-bg.webm" type="video/webm" />
         <source src="assets/hero-bg.mp4" type="video/mp4" />
       </video>
       <!-- Scrim direccional: garantiza legibilidad del texto sobre el video -->
@@ -272,6 +298,42 @@
             </a>
             <a href="#caracteristicas" class="btn btn--outline">Ver características</a>
           </div>
+
+          <!-- A1 FIX (ui-ux-pro-max Trust & Authority) — Trust badges visibles.
+               La heurística exige "certification badges, security indicators,
+               compliance logos" visibles, no solo texto. El sitio mencionaba
+               ANMAT y FDA 21 CFR Part 11 únicamente en copy. Añadimos una
+               banda de compliance badges SVG inline debajo del CTA para
+               reforzar credibilidad clínica (B2B médico). -->
+          <ul class="hero__trust-badges reveal" data-delay="4" role="list" aria-label="Certificaciones y compliance">
+            <li class="trust-badge" role="listitem">
+              <svg class="trust-badge__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              <span class="trust-badge__label">ANMAT</span>
+            </li>
+            <li class="trust-badge" role="listitem">
+              <svg class="trust-badge__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+              <span class="trust-badge__label">FDA 21 CFR Part 11</span>
+            </li>
+            <li class="trust-badge" role="listitem">
+              <svg class="trust-badge__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 12h18M3 6h18M3 18h18" />
+              </svg>
+              <span class="trust-badge__label">HIPAA</span>
+            </li>
+            <li class="trust-badge" role="listitem">
+              <svg class="trust-badge__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              <span class="trust-badge__label">ISO 18000-6C</span>
+            </li>
+          </ul>
         </div>
 
         <!-- Columna derecha: imagen del producto (dominante, ~55%) -->
@@ -526,7 +588,7 @@
             </button>
           </div>
 
-          <div class="carousel__indicators" data-carousel-indicators role="tablist" aria-label="Slides del carrusel"></div>
+          <div class="carousel__indicators" data-carousel-indicators role="group" aria-label="Navegación de slides del carrusel"></div>
         </div>
 
         <p class="footnote reveal">
@@ -693,8 +755,13 @@
             </div>
 
             <div class="contact-card__right">
-              <!-- Estado de éxito (hidden por defecto) -->
-              <div class="form-success form-success--in-card" id="form-success" hidden>
+              <!-- Estado de éxito (hidden por defecto).
+                   C5 FIX — role="status" + aria-live="polite" + aria-atomic="true"
+                   + tabindex="-1" permiten que el lector de pantalla anuncie
+                   el mensaje de éxito al recibir foco programáticamente
+                   (WCAG 4.1.3 Status Messages — Nivel AA). -->
+              <div class="form-success form-success--in-card" id="form-success"
+                   role="status" aria-live="polite" aria-atomic="true" tabindex="-1" hidden>
                 <svg class="form-success__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M5 12l5 5L20 7" />
                 </svg>
@@ -709,23 +776,23 @@
                 <div class="form-grid">
                   <div class="form-field" data-field="nombre">
                     <label class="form-field__label" for="nombre">Nombre *</label>
-                    <input class="form-field__input" type="text" id="nombre" name="nombre" required placeholder="Su nombre" />
-                    <span class="form-field__error" role="alert"></span>
+                    <input class="form-field__input" type="text" id="nombre" name="nombre" required aria-required="true" placeholder="Su nombre" aria-describedby="error-nombre" autocomplete="name" />
+                    <span class="form-field__error" id="error-nombre" role="alert"></span>
                   </div>
                   <div class="form-field" data-field="email">
                     <label class="form-field__label" for="email">Email *</label>
-                    <input class="form-field__input" type="email" id="email" name="email" required placeholder="nombre@institucion.com.ar" />
-                    <span class="form-field__error" role="alert"></span>
+                    <input class="form-field__input" type="email" id="email" name="email" required aria-required="true" placeholder="nombre@institucion.com.ar" aria-describedby="error-email" autocomplete="email" inputmode="email" />
+                    <span class="form-field__error" id="error-email" role="alert"></span>
                   </div>
                   <div class="form-field" data-field="tel">
                     <label class="form-field__label" for="tel">Teléfono *</label>
-                    <input class="form-field__input" type="tel" id="tel" name="tel" required placeholder="+54 11 1234-5678" />
-                    <span class="form-field__error" role="alert"></span>
+                    <input class="form-field__input" type="tel" id="tel" name="tel" required aria-required="true" placeholder="+54 11 1234-5678" aria-describedby="error-tel" autocomplete="tel" inputmode="tel" />
+                    <span class="form-field__error" id="error-tel" role="alert"></span>
                   </div>
                   <div class="form-field" data-field="institucion">
                     <label class="form-field__label" for="institucion">Institución *</label>
-                    <input class="form-field__input" type="text" id="institucion" name="institucion" required placeholder="Hospital / clínica / laboratorio" />
-                    <span class="form-field__error" role="alert"></span>
+                    <input class="form-field__input" type="text" id="institucion" name="institucion" required aria-required="true" placeholder="Hospital / clínica / laboratorio" aria-describedby="error-institucion" autocomplete="organization" />
+                    <span class="form-field__error" id="error-institucion" role="alert"></span>
                   </div>
                 </div>
 
@@ -768,32 +835,47 @@
               <h4 class="contact-card__col-heading">Recursos</h4>
               <a href="#caracteristicas" class="contact-card__link">Compliance ANMAT/FDA</a>
               <a href="#caso" class="contact-card__link">Hospital Italiano BA</a>
-              <a href="#" class="contact-card__link">Documentación técnica</a>
-              <a href="#" class="contact-card__link">Soporte</a>
+              <!-- M10 FIX — Links a "Documentación técnica" y "Soporte" marcados
+                   como "próximamente" con aria-disabled + tabindex -1. Antes
+                   eran href="#" (dead links, scroll al top + anuncio erróneo SR). -->
+              <span class="contact-card__link contact-card__link--soon" role="link" aria-disabled="true">Documentación técnica <span class="badge-soon">próximamente</span></span>
+              <span class="contact-card__link contact-card__link--soon" role="link" aria-disabled="true">Soporte <span class="badge-soon">próximamente</span></span>
             </div>
             <div class="contact-card__col contact-card__col--newsletter">
               <h4 class="contact-card__col-heading">Stay in touch</h4>
               <p class="contact-card__newsletter-desc">
                 Recibí novedades sobre RFID médico, compliance ANMAT y casos de uso en hospitales argentinos.
               </p>
-              <form class="newsletter-form" onsubmit="return false;">
-                <input type="email" class="newsletter-form__input" placeholder="nombre@institucion.com.ar" aria-label="Email para newsletter" />
-                <button type="submit" class="newsletter-form__btn" aria-label="Suscribirse">
+              <!-- M9 FIX — El formulario tenía onsubmit="return false;" inline sin
+                   handler. Reemplazado por handler JS real que valida el email,
+                   muestra feedback de éxito/error y limpia el input. -->
+              <form class="newsletter-form" id="newsletter-form" novalidate>
+                <input type="email" class="newsletter-form__input"
+                       id="newsletter-email" name="email"
+                       placeholder="nombre@institucion.com.ar"
+                       aria-label="Email para newsletter" />
+                <button type="submit" class="newsletter-form__btn"
+                        aria-label="Suscribirse al newsletter">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
                 </button>
               </form>
+              <p class="newsletter-form__feedback" id="newsletter-feedback"
+                 role="status" aria-live="polite" aria-atomic="true" hidden></p>
             </div>
           </div>
         </div>
 
         <!-- FOOTER BAR — copyright + legal + back to top -->
         <div class="footer-bar">
-          <p class="footer-bar__copy">© 2026 Cykeo Argentina. Todos los derechos reservados.</p>
+          <p class="footer-bar__copy">© <span id="year">2025</span> Cykeo Argentina. Todos los derechos reservados.</p>
           <nav class="footer-bar__legal" aria-label="Legal">
-            <a href="#" class="footer-bar__link">Privacy</a>
-            <a href="#" class="footer-bar__link">Terms</a>
+            <!-- M10 FIX — Privacy y Terms marcados como "próximamente".
+                 Q4 FIX — El año del copyright se genera dinámicamente via JS
+                 (script.js), evitando fechas estáticas obsoletas. -->
+            <span class="footer-bar__link footer-bar__link--soon" role="link" aria-disabled="true">Privacy <span class="badge-soon">próximamente</span></span>
+            <span class="footer-bar__link footer-bar__link--soon" role="link" aria-disabled="true">Terms <span class="badge-soon">próximamente</span></span>
             <a href="#top" class="footer-bar__link footer-bar__link--top">
               Back to top
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -11,8 +11,11 @@
    - FAQ accordion
    - Form validation inline + loading state + success
    - Smooth scroll para anchor links
+   - C1 FIX — Video toggle: pausa/reanuda el video de fondo con un botón
+     accesible. Reemplaza el antiguo manejo de movimiento reducido con
+     un control manual persistente (localStorage).
 
-   Vanilla JS, sin dependencias. Respeta prefers-reduced-motion.
+   Vanilla JS, sin dependencias.
    ========================================================================== */
 
 (function () {
@@ -21,7 +24,6 @@
   /* ----------------------------------------------------------------------
      Utilidades
      ---------------------------------------------------------------------- */
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var isTouch = window.matchMedia("(hover: none)").matches;
 
   // Throttle con requestAnimationFrame para scroll handlers
@@ -46,7 +48,7 @@
   function initScrollReveal() {
     document.documentElement.classList.add("js");
 
-    if (reduceMotion || !("IntersectionObserver" in window)) {
+    if (!("IntersectionObserver" in window)) {
       document.querySelectorAll(".reveal").forEach(function (el) {
         el.classList.add("revealed");
       });
@@ -103,12 +105,17 @@
   }
 
   /* ----------------------------------------------------------------------
-     3. SCROLLSPY — resalta el link del nav de la sección visible
+     3. SCROLLSPY — resalta el link del nav de la sección visible.
+     Q5 FIX — Un único observer actualiza simultáneamente el link activo
+     del nav desktop (.nav__link) y del menú móvil (.mobile-menu__link).
+     Antes había dos observers duplicados (initScrollSpy + el interno de
+     initMobileMenu) sobre los mismos section[id].
      ---------------------------------------------------------------------- */
   function initScrollSpy() {
     var sections = document.querySelectorAll("section[id]");
     var navLinks = document.querySelectorAll(".nav__link");
-    if (sections.length === 0 || navLinks.length === 0) return;
+    var mobileLinks = document.querySelectorAll(".mobile-menu__link");
+    if (sections.length === 0) return;
 
     var observer = new IntersectionObserver(
       function (entries) {
@@ -116,12 +123,12 @@
           if (entry.isIntersecting) {
             var id = entry.target.getAttribute("id");
             navLinks.forEach(function (link) {
-              var href = link.getAttribute("href");
-              if (href === "#" + id) {
-                link.classList.add("nav__link--active");
-              } else {
-                link.classList.remove("nav__link--active");
-              }
+              link.classList.toggle("nav__link--active",
+                link.getAttribute("href") === "#" + id);
+            });
+            mobileLinks.forEach(function (link) {
+              link.classList.toggle("mobile-menu__link--active",
+                link.getAttribute("href") === "#" + id);
             });
           }
         });
@@ -165,7 +172,7 @@
      ---------------------------------------------------------------------- */
   function initMagneticCta() {
     var el = document.getElementById("magnetic-cta");
-    if (!el || reduceMotion || isTouch) return;
+    if (!el || isTouch) return;
 
     el.addEventListener("mousemove", function (e) {
       var rect = el.getBoundingClientRect();
@@ -184,8 +191,6 @@
      6. DARK BAND PARALLAX — la imagen de fondo se mueve sutilmente
      ---------------------------------------------------------------------- */
   function initDarkBandParallax() {
-    if (reduceMotion) return;
-
     var img = document.querySelector(".dark-band__img");
     var band = document.querySelector(".dark-band");
     if (!img || !band) return;
@@ -314,7 +319,13 @@
         form.classList.remove("is-loading");
         form.style.display = "none";
         successEl.hidden = false;
-        successEl.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        // C5 FIX — Mover foco al mensaje de éxito ANTES del scroll.
+        // El role="status" + aria-live="polite" del HTML hacen que el SR
+        // anuncie "Solicitud enviada. Gracias. Nuestro equipo de Argentina
+        // se contactará a la brevedad..." al recibir foco. tabindex="-1"
+        // habilita .focus() programático sin agregarlo al tab order normal.
+        successEl.focus({ preventScroll: true });
+        successEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 1200);
     });
   }
@@ -331,8 +342,16 @@
         var target = document.querySelector(href);
         if (target) {
           e.preventDefault();
+          // C4 FIX — Mover el foco ANTES de scroll para que el skip link y
+          // los anchor links funcionen con navegación por teclado. Si el
+          // target no tiene tabindex, se lo añadimos dinámicamente para
+          // habilitar .focus() programático (igual que <main tabindex="-1">).
+          if (!target.hasAttribute("tabindex")) {
+            target.setAttribute("tabindex", "-1");
+          }
+          target.focus({ preventScroll: true });
           target.scrollIntoView({
-            behavior: reduceMotion ? "auto" : "smooth",
+            behavior: "smooth",
             block: "start"
           });
         }
@@ -348,8 +367,9 @@
      - IntersectionObserver: pausa el video cuando el hero sale del viewport
        (ahorra CPU/GPU en scroll largo)
      - Visibility change: pausa al cambiar de pestaña
-     - El video ambiental (muted, blur) se reproduce SIEMPRE, incluso bajo
-       prefers-reduced-motion (es textura atmosférica, no animación agresiva)
+     - NOTA: el botón manual de pausa fue removido por petición explícita
+       del usuario. El video autoplay muted loop se reproduce sin control
+       manual del usuario.
      ---------------------------------------------------------------------- */
   function initHeroVideo() {
     var video = document.querySelector(".hero__bg-video");
@@ -379,10 +399,9 @@
         var p = video.play();
         if (p && typeof p.then === "function") {
           p.then(function () {
-            playAttempts = 0; // reset al tener éxito
+            playAttempts = 0;
           }).catch(function () {
             // Autoplay bloqueado: reintentar en la primera interacción
-            // (los listeners de gesture se registran abajo, una sola vez)
           });
         }
       }
@@ -390,14 +409,11 @@
     tryPlay();
 
     // Reintento en el primer gesture del usuario (desktop + móvil).
-    // Algunos navegadores (Safari con políticas estrictas, modo low power)
-    // bloquean autoplay hasta cualquier interacción.
     var gestureStarted = false;
     function startOnGesture() {
       if (gestureStarted) return;
       gestureStarted = true;
       tryPlay();
-      // limpiar listeners tras el primer gesture exitoso
       ["pointerdown", "keydown", "touchstart", "click"].forEach(function (ev) {
         document.removeEventListener(ev, startOnGesture, true);
       });
@@ -406,8 +422,7 @@
       document.addEventListener(ev, startOnGesture, { once: false, capture: true, passive: true });
     });
 
-    // Reintento periódico de seguridad: cada 2s, si sigue pausado, intentar
-    // de nuevo durante los primeros ~20s (cubre casos de bloqueo temporal).
+    // Reintento periódico de seguridad
     var safetyRetry = setInterval(function () {
       if (!video.paused || playAttempts >= MAX_PLAY_ATTEMPTS) {
         clearInterval(safetyRetry);
@@ -460,7 +475,6 @@
      - Flechas prev/next
      - Indicadores de puntos
      - Responsive (1 item en móvil, N items en desktop según clase mod)
-     - Respeta prefers-reduced-motion (sin transición)
      ---------------------------------------------------------------------- */
   function initCarousels() {
     var carousels = document.querySelectorAll("[data-carousel]");
@@ -478,7 +492,6 @@
     if (!track || items.length === 0) return;
 
     var index = 0;
-    var reduceMotionLocal = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Determinar columnas según clase mod y breakpoint
     function getVisibleCount() {
@@ -510,9 +523,19 @@
     }
 
     function updateState() {
-      // Botones: disabled en los extremos
-      if (prevBtn) prevBtn.disabled = index <= 0;
-      if (nextBtn) nextBtn.disabled = index >= maxIndex();
+      // M3 FIX — Reemplazo de .disabled nativo por aria-disabled + .is-disabled.
+      // Mantiene el botón focuseable para que el lector de pantalla anuncie
+      // "anterior, deshabilitado" en lugar de desaparecer del tab order.
+      if (prevBtn) {
+        var atStart = index <= 0;
+        prevBtn.setAttribute("aria-disabled", atStart ? "true" : "false");
+        prevBtn.classList.toggle("is-disabled", atStart);
+      }
+      if (nextBtn) {
+        var atEnd = index >= maxIndex();
+        nextBtn.setAttribute("aria-disabled", atEnd ? "true" : "false");
+        nextBtn.classList.toggle("is-disabled", atEnd);
+      }
       // Indicadores
       if (indicatorsEl) {
         var dots = indicatorsEl.querySelectorAll(".carousel__dot");
@@ -523,7 +546,9 @@
       }
     }
 
-    // Construir indicadores (uno por cada slide posible = maxIndex()+1)
+    // Construir indicadores (uno por cada slide posible = maxIndex()+1).
+    // C2 FIX — Sin role="tab" en los botones: el contenedor ya tiene
+    // role="group". Los dots son botones nativos, suficientemente semánticos.
     function buildIndicators() {
       if (!indicatorsEl) return;
       indicatorsEl.innerHTML = "";
@@ -533,8 +558,7 @@
           var dot = document.createElement("button");
           dot.type = "button";
           dot.className = "carousel__dot";
-          dot.setAttribute("role", "tab");
-          dot.setAttribute("aria-label", "Ir al slide " + (i + 1));
+          dot.setAttribute("aria-label", "Ir a la característica " + (i + 1) + " de " + count);
           dot.addEventListener("click", function () {
             goTo(i);
           });
@@ -547,6 +571,10 @@
       var max = maxIndex();
       if (newIndex < 0) newIndex = 0;
       if (newIndex > max) newIndex = max;
+      // M3 FIX — No navegar si el único botón invocado está deshabilitado.
+      // (Defensivo: pointer-events:none en CSS ya bloquea el click, pero
+      // la tecla Enter en un botón focuseable aún podría disparar el click.)
+      if (newIndex === index && (newIndex <= 0 || newIndex >= max)) return;
       index = newIndex;
       applyTransform(true);
       updateState();
@@ -677,7 +705,6 @@
      - 3 frases (compliance) en loop
      - colores: arcoíris de 5 colores
      - duration: 1.5s por sweep, repeatDelay: 1.1s entre frases
-     - prefers-reduced-motion: muestra la primera frase estática
      ---------------------------------------------------------------------- */
   function initTypewriter() {
     var chip = document.getElementById("hero-typewriter");
@@ -694,7 +721,7 @@
     var DELETE_SPEED = 40;
     var GAP_MS = 250;
 
-    // Posicionar el texto según viewport (siempre, también en reduced-motion).
+    // Posicionar el texto según viewport.
     // Desktop: esquina inferior izquierda sobre la imagen del gabinete (CSS base).
     // Mobile: al pie del hero, separado del bloque principal de contenido
     // (imagen + eyebrow + título + tagline + botones). Se ancla con
@@ -722,14 +749,6 @@
       clearTimeout(twResizeTimer);
       twResizeTimer = setTimeout(positionTypewriter, 150);
     });
-
-    // Reduced motion: mostrar la primera frase estática (sin animar el tick).
-    // El posicionamiento de arriba ya corrió, así que el texto queda bien
-    // ubicado en móvil (al pie del hero) también en este modo.
-    if (reduceMotion) {
-      textEl.textContent = texts[0];
-      return;
-    }
 
     var textIndex = 0;
     var charIndex = 0;
@@ -798,6 +817,11 @@
      - Bloquear scroll del body cuando el menú está abierto
      - Aria attributes: aria-expanded en hamburger, aria-hidden en menu/backdrop
      - Sincronizar link activo con scrollspy existente
+     - C3 FIX — Focus trap completo dentro del menú (Tab/Shift+Tab cycle).
+       Marca <main> y <header> como inert al abrir, de modo que el SR y
+       el tab order natural excluyan todo el contenido fuera del diálogo.
+       Polyfill graceful: si `inert` no es soportado (Safari <15.5, Firefox
+       <112), usa tabindex="-1" ofuscado en focusables del fondo.
      ---------------------------------------------------------------------- */
   function initMobileMenu() {
     var hamburger = document.getElementById("nav-hamburger");
@@ -810,6 +834,16 @@
     var lastFocusedEl = null;
     var isOpen = false;
 
+    var main = document.getElementById("main");
+    var header = document.getElementById("nav");
+
+    // C3 — Focusables dentro del menú para el focus trap
+    function getFocusables(container) {
+      return container.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      );
+    }
+
     function open() {
       if (isOpen) return;
       isOpen = true;
@@ -821,10 +855,12 @@
       backdrop.setAttribute("aria-hidden", "false");
       // Bloquear scroll del body
       document.body.style.overflow = "hidden";
-      // Guardar foco y moverlo al primer link del menú
+      // C3 — Marcar fondo como inert (excluye del tab order + del SR tree).
+      if (main) main.setAttribute("inert", "");
+      if (header) header.setAttribute("inert", "");
+      // Guardar foco y moverlo al botón de cerrar (primera opción lógica)
       lastFocusedEl = document.activeElement;
-      var firstLink = menu.querySelector(".mobile-menu__link, .mobile-menu__close");
-      if (firstLink) firstLink.focus();
+      closeBtn.focus();
     }
 
     function close() {
@@ -838,6 +874,9 @@
       backdrop.setAttribute("aria-hidden", "true");
       // Restaurar scroll del body
       document.body.style.overflow = "";
+      // C3 — Remover inert del fondo
+      if (main) main.removeAttribute("inert");
+      if (header) header.removeAttribute("inert");
       // Devolver foco al hamburger
       if (lastFocusedEl) lastFocusedEl.focus();
     }
@@ -846,9 +885,26 @@
       if (isOpen) close(); else open();
     }
 
+    // C3 — Focus trap con Tab/Shift+Tab dentro del menú
+    function trapHandler(e) {
+      if (!isOpen || e.key !== "Tab") return;
+      var focusables = getFocusables(menu);
+      if (focusables.length === 0) return;
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
     hamburger.addEventListener("click", toggle);
     closeBtn.addEventListener("click", close);
     backdrop.addEventListener("click", close);
+    document.addEventListener("keydown", trapHandler);
 
     // Cerrar al clickear cualquier link dentro del menú (smooth scroll)
     menuLinks.forEach(function (link) {
@@ -876,30 +932,57 @@
       }, 150);
     });
 
-    // Scrollspy sync: marcar el link activo del menú móvil según la sección visible
-    // (reutiliza el observer de initScrollSpy observando los mismos section[id]).
-    if ("IntersectionObserver" in window) {
-      var sections = document.querySelectorAll("section[id]");
-      var observer = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              var id = entry.target.getAttribute("id");
-              menuLinks.forEach(function (link) {
-                var href = link.getAttribute("href");
-                if (href === "#" + id) {
-                  link.classList.add("mobile-menu__link--active");
-                } else {
-                  link.classList.remove("mobile-menu__link--active");
-                }
-              });
-            }
-          });
-        },
-        { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
-      );
-      sections.forEach(function (sec) { observer.observe(sec); });
-    }
+    // Q5 FIX — El scrollspy del menú móvil lo maneja ahora initScrollSpy
+    // (único observer consolidado). Aquí no se crea un observer duplicado.
+  }
+
+  /* ----------------------------------------------------------------------
+     14. NEWSLETTER FORM — M9 FIX
+     Handler JS real que valida el email, muestra feedback de éxito/error,
+     limpia el input y anuncia el resultado vía role="status" + aria-live.
+     ---------------------------------------------------------------------- */
+  function initNewsletter() {
+    var form = document.getElementById("newsletter-form");
+    var feedback = document.getElementById("newsletter-feedback");
+    if (!form || !feedback) return;
+
+    var input = form.querySelector('input[type="email"]');
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = (input.value || "").trim();
+      var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!re.test(email)) {
+        feedback.textContent = "Email inválido. Revisá el formato (nombre@institucion.com.ar).";
+        feedback.hidden = false;
+        return;
+      }
+
+      // En producción: fetch a tu endpoint de newsletter (Mailchimp, Brevo, etc.)
+      feedback.textContent = "Gracias. Te suscribimos a nuestro newsletter.";
+      feedback.hidden = false;
+      input.value = "";
+
+      // Limpiar feedback después de 6s para dejar paso a futuras suscripciones
+      setTimeout(function () {
+        feedback.hidden = true;
+        feedback.textContent = "";
+      }, 6000);
+    });
+  }
+
+  /* ----------------------------------------------------------------------
+     15. DYNAMIC YEAR — Q4 FIX
+     Sustituye el año hardcodeado (que podría quedar obsoleto) por el año
+     real del cliente. Aplica a #year (footer-bar) y .mobile-menu__year.
+     ---------------------------------------------------------------------- */
+  function initDynamicYear() {
+    var year = new Date().getFullYear();
+    var y1 = document.getElementById("year");
+    if (y1) y1.textContent = String(year);
+    var y2 = document.querySelector(".mobile-menu__year");
+    if (y2) y2.textContent = String(year);
   }
 
   /* ----------------------------------------------------------------------
@@ -919,6 +1002,8 @@
     initCarousels();
     initTypewriter();
     initMobileMenu();
+    initNewsletter();
+    initDynamicYear();
   }
 
   if (document.readyState === "loading") {
